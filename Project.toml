@@ -1,0 +1,7 @@
+name = "SIMIlluminationPatterns"
+uuid = "e6514a50-921c-4af3-9933-d2ed4e901773"
+authors = ["Martin Kunz <martinkunz@email.cz> and contributors"]
+version = "1.0.0-DEV"
+
+[compat]
+julia = "1"
