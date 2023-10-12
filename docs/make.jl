@@ -16,7 +16,9 @@ makedocs(;
     ),
     pages=[
         "Home" => "index.md",
-        "Illumination Patterns" => ["harmonic.md"],
+        "Illumination Patterns" => [
+            "Harmonic" => "harmonic.md"
+        ],
         # "Reference" => "reference.md"
     ]
 )

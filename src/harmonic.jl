@@ -14,7 +14,7 @@
 
 Harmonic (sinusoidal) illumination pattern in the form
 ```math
-    I(\vec{r})=1+{\frac{m}{2}}\cos\left(2π⋅ (kₓ⋅\vec{r}ₓ + k_y ⋅ \vec{r}_y) + \phi\right)
+    I(\vec{r})=1+{\frac{m}{2}}\cos\left(2π⋅ (kₓ⋅(\vec{r})ₓ + k_y ⋅ (\vec{r})_y) + \phi\right)
 ```
 
 Parameters have types `Real`, `Frequency` or `Length` and denote:

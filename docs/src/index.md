@@ -1,6 +1,7 @@
 ```@meta
 CurrentModule = SIMIlluminationPatterns
 ```
+<!-- TODO: Use https://github.com/JuliaDocs/DocumenterCitations.jl for the citations <12-10-23> -->
 
 # SIMIlluminationPatterns
 
@@ -26,7 +27,7 @@ that the emission is linearly dependent[^5] on the illumination intensity
 ```
 This package is concerned with ``I(\vec{r})`` in this model. By far the most frequent type of illumination pattern used
 in SIM is the [_harmonic_](harmonic.md) also called `sinusoidal`. Another type that is not yet implemented in this
-package the random _speckle_ pattern used in, so called, _blind SIM[^(Mudry et al., 2012)]_.
+package the random _speckle_ pattern used in, so called, _blind SIM_[^Mudry2012].
 
 [^1]: A linear assumption is often necessary for any analysis, but it is approximately true for most optical systems
 [^2]: "E" can stand for emission which is relevant for imaging "emitted" light, i.e. fluorescence microscopy
@@ -35,4 +36,4 @@ package the random _speckle_ pattern used in, so called, _blind SIM[^(Mudry et a
 [^4]: A package concerned with the transfer functions of optical systems is [`TransferFunctions.jl`](https://github.com/kunzaatko/TransferFunctions.jl)
 [^5]: In fluorescence microscopy, the linearity of the relation is determined by the linearity of the relation between
       excitation and emission of the used fluorescent probes
-[^(Mudry et al., 2012)]: Mudry, E., Belkebir, K., Girard, J., Savatier, J., Le Moal, E., Nicoletti, C., Allain, M., Sentenac, A., 2012. Structured illumination microscopy using unknown speckle patterns. Nature Photon 6, 312–315. https://doi.org/10.1038/nphoton.2012.83
+[^Mudry2012]: Mudry, E., Belkebir, K., Girard, J., Savatier, J., Le Moal, E., Nicoletti, C., Allain, M., Sentenac, A., 2012. Structured illumination microscopy using unknown speckle patterns. Nature Photon 6, 312–315. https://doi.org/10.1038/nphoton.2012.83
