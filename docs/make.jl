@@ -12,14 +12,16 @@ makedocs(;
         prettyurls=get(ENV, "CI", "false") == "true",
         canonical="https://kunzaatko.github.io/SIMIlluminationPatterns.jl",
         edit_link="trunk",
-        assets=String[],
+        assets=String[]
     ),
     pages=[
         "Home" => "index.md",
-    ],
+        "Illumination Patterns" => ["harmonic.md"],
+        # "Reference" => "reference.md"
+    ]
 )
 
 deploydocs(;
     repo="github.com/kunzaatko/SIMIlluminationPatterns.jl",
-    devbranch="trunk",
+    devbranch="trunk"
 )
