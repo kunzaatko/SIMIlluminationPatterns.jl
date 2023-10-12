@@ -15,7 +15,7 @@ end
 
 @testset "SIMIlluminationPatterns.jl" begin
     @testset "Code quality (Aqua.jl)" begin
-        Aqua.test_all(SIMIlluminationPatterns; ambiguities=VERSION > v"1.1")
+        Aqua.test_all(SIMIlluminationPatterns; ambiguities=VERSION >= v"1.1")
     end
     @testset "Harmonic" begin
         Δxy = 61u"nm"
