@@ -1,5 +1,6 @@
 # TODO: Implement constructors <11-10-23> 
 # TODO: Check if all the methods that I want to include are included <11-10-23> 
+# TODO: Add `@ref` links to `Frequency` and `Length` <12-10-23> 
 @doc raw"""
     Harmonic(m::Real, θ::Real, ν::Frequency, ϕ::Real)
     Harmonic(m::Real, (kx, ky)::Tuple{Frequency,Frequency}, ϕ::Real)
@@ -16,7 +17,7 @@ Harmonic (sinusoidal) illumination pattern in the form
     I(\vec{r})=1+{\frac{m}{2}}\cos\left(2π⋅ (kₓ⋅\vec{r}ₓ + k_y ⋅ \vec{r}_y) + \phi\right)
 ```
 
-Parameters have types `Real`, [`Frequency`](@ref Frequency) or [`Length`](@ref Length) and denote:
+Parameters have types `Real`, `Frequency` or `Length` and denote:
 * `m`: modulation factor
 * `ν`: frequency (`\nu`)
 * `λ`: wavelength (`\lambda`)

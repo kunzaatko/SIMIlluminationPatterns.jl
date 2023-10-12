@@ -52,7 +52,7 @@ jobs:
           version: '1'
       - name: Configure doc environment
         run: |
-          julia --project=docs/ -e '
+          julia --color=yes --project=docs/ -e '
             using Pkg
             Pkg.develop(PackageSpec(path=pwd()))
             Pkg.instantiate()'
@@ -61,7 +61,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: |
-          julia --project=docs -e '
+          julia --color=yes --project=docs -e '
             using Documenter: DocMeta, doctest
             using SIMIlluminationPatterns
             DocMeta.setdocmeta!(SIMIlluminationPatterns, :DocTestSetup, :(using SIMIlluminationPatterns); recursive=true)
