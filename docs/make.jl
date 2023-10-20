@@ -1,7 +1,12 @@
 using SIMIlluminationPatterns
-using Documenter
+using Documenter, DocumenterCitations
 
 DocMeta.setdocmeta!(SIMIlluminationPatterns, :DocTestSetup, :(using SIMIlluminationPatterns); recursive=true)
+
+bib = CitationBibliography(
+    joinpath(@__DIR__, "src", "refs.bib");
+    # style=:authoryear
+)
 
 makedocs(;
     modules=[SIMIlluminationPatterns],
@@ -19,8 +24,9 @@ makedocs(;
         "Illumination Patterns" => [
             "Harmonic" => "harmonic.md"
         ],
-        # "Reference" => "reference.md"
-    ]
+        "References" => "references.md"
+    ],
+    plugins=[bib]
 )
 
 deploydocs(;
