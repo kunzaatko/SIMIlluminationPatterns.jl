@@ -18,8 +18,12 @@ it a CCD, CMOS or a different type of sensor) as
     D(\vec{x}) = E'(\vec{x}) + η(\vec{x}) = E(\vec{y}) \otimes h(\vec{y}; \vec{x}) + η(\vec{x}),
 ```
 where ``\otimes`` is the convolution operation i.e. , ``E(\vec{y})``[^2] denotes the intensity produced by the imaged object at the point ``\vec{y}``,
-disregarding noise, ``h(\vec{y}; \vec{x})``[^3] denotes the point spread function[^4] (PSF) at the point ``\vec{x}``, evaluated at ``\vec{y}`` which is
+disregarding noise, ``h(\vec{y}; \vec{x})``[^3] denotes the point spread function (PSF) at the point ``\vec{x}``, evaluated at ``\vec{y}`` which is
 caused by the light passing through the objective and ``η(\vec{x})`` is the noise term.
+
+!!! info
+    A package concerned with transfer functions of optical systems including the PSF is 
+    [`TransferFunctions.jl`](https://github.com/kunzaatko/TransferFunctions.jl)
 
 
 In the frequency domain ([Fourier Transform](https://en.wikipedia.org/wiki/Fourier_transform)), due to the [convolution
@@ -33,7 +37,7 @@ system is that it has a bounded support, which is a demonstration of the resolut
 the support `` \vec{\xi} \not\in \mathop{supp}(H)`` are not observed in the sensed data i.e. ``\tilde{D}(\vec{\xi}) = N(\vec{\xi})`` and thus any two points within distance of the reciprocal of those frequencies ``1/\|\vec{\xi}\|`` are observed as if produced by a single point.
 
 In a regular structured illumination microscopy (SIM) set-up, we further assume
-that the emission is linearly dependent[^5] on the illumination intensity
+that the emission is linearly dependent[^4] on the illumination intensity
 ```math
     E(\vec{x}) = S(\vec{x})I(\vec{x}).
 ``` 
@@ -58,6 +62,5 @@ package the random _speckle_ pattern used in, so called, _blind SIM_ [mudry2012]
 [^3]: For an _aplanic_ system, we can drop the parameter of the PSF since every point in one focal plane is considered to have
       the same PSF, i.e. ``h(\vec{y}; \vec{x}) = h(\vec{y})``. This can be either a good or a bad approximation
       depending on the optical setup.
-[^4]: A package concerned with transfer functions of optical systems is [`TransferFunctions.jl`](https://github.com/kunzaatko/TransferFunctions.jl)
-[^5]: In fluorescence microscopy, the linearity of the relation is determined by the linearity of the relation between
+[^4]: In fluorescence microscopy, the linearity of the relation is determined by the linearity of the relation between
       excitation and emission of the used fluorescent probes
