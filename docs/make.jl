@@ -21,10 +21,17 @@ makedocs(;
     ),
     pages=[
         "Home" => "index.md",
+        "Theory" => "pages/01_theory.md",
+        "General Interface" => "pages/02_interface.md",
         "Illumination Patterns" => [
-            "Harmonic" => "harmonic.md"
+            "Harmonic" => "pages/03_patterns/01_harmonic.md"
+            "Nonlinear SIM" => "pages/03_patterns/02_nonlinear_sim.md"
+            "Blind SIM" => "pages/03_patterns/03_blindsim.md"
         ],
-        "References" => "references.md"
+        "References" => [
+            "API" => "pages/04_apireference.md",
+            "Bibliography" => "pages/05_bibliography.md"
+        ]
     ],
     plugins=[bib]
 )

@@ -1,15 +1,9 @@
 module SIMIlluminationPatterns
-using Reexport, Unitful
+using Reexport
 
-using Unitful: Length
-@derived_dimension Frequency Unitful.𝐋^-1
-
-abstract type IlluminationPattern end
-const IP = IlluminationPattern
-
+include("illumination_pattern_api.jl")
 include("harmonic.jl")
 
 @reexport using Unitful
-export Harmonic
 
 end
