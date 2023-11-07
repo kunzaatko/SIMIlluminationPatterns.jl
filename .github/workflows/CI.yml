@@ -5,6 +5,7 @@ on:
       - trunk
     tags: ['*']
   pull_request:
+    types: [opened, reopened, ready_for_review]
   workflow_dispatch:
 concurrency:
   # Skip intermediate builds: always.
@@ -19,7 +20,7 @@ jobs:
       fail-fast: false
       matrix:
         version:
-          - '1.0'
+          - '1.6' # oldest possible version
           - '1.9'
           - '~1.10.0-0'
           - 'nightly'
