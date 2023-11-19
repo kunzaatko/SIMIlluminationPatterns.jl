@@ -42,8 +42,17 @@ end
                 end
             end
         end
-        @testset "types with Base.equiv" begin
-            @test_broken Harmonic(1, π / 4, 2 / 61u"nm", 0) == Harmonic(1.0, π / 4, 2 / 61u"nm", 0.0)
+        @testset "interfaces from Base" begin
+            h1 = Harmonic(1, π / 4, 2 / 61u"nm", 0)
+            h2 = Harmonic(1.0, π / 4, 2 / 61u"nm", 0.0)
+
+            # TODO: test `isequal` on missing values and equivalence operator on missing values <19-11-23> 
+            # hmissing = Harmonic(missing, π / 4, 2 / 61u"nm", 0)
+
+            @test h1 == h2
+            @test hash(h1) == hash(h2)
+            @test isequal(h1, h2)
+
         end
     end
 end
