@@ -11,3 +11,6 @@ deps/src/
 deps/usr/
 docs/build/
 docs/site/
+notebooks/
+pysrc/
+data

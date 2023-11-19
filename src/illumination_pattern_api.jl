@@ -7,6 +7,31 @@ Super type for `N`-dimensional illumation patterns. Any particular illumination 
 documentation for [`IlluminationPattern` interface](@ref "Unified `IlluminationPattern` Interface") to see how to implement your own illumination pattern subtype.
 
 See also: [`Harmonic2D`](@ref)
+
+# Implementation
+When implementing a new subtype `A <: IlluminationPattern{N}` you need to implement the following methods:
++ `(pattern::A)(r::Vararg{Length, N})::Real` representing the intensity of `pattern` at the position `r`
+
+and these optional methods:
+
+TODO
+
+The inner constructor of the subtype `A` should check that `N::Integer` unless your subtype has a specified dimension.
+```@example
+struct A1{N} <: IlluminationPattern{N}
+    function A{N}() where {N}
+        @assert N isa Integer
+        new{N}()
+    end
+end
+
+struct A2 <: IlluminationPattern{2}
+    function A2()
+        # No need for any assertions
+        new()
+    end
+end
+```
 """
 abstract type IlluminationPattern{N} end
 const IP{N} = IlluminationPattern{N}
@@ -16,13 +41,13 @@ const IP{N} = IlluminationPattern{N}
 prefered_type(::IP{N}) where {N} = Float64
 
 @doc raw"""
-Super type for `N`-dimensional illumination pattern realization. You can fix the pixels sizes (`Δxy`) and sample the 
-pattern on your senosor and optical system setup.
+`N`-dimensional illumination pattern realization. You can fix the pixels sizes (`Δxy`) and sample the 
+pattern on your sensor and optical system setup.
 """
 struct IlluminationPatternRealization{T<:Real,N}
     "physical illumination pattern"
     pattern::IP{N}
-    "pixel size"
+    "pixel dimensions"
     Δxy::NTuple{N,Length}
     function IlluminationPatternRealization{T,N}(ip::IP{N}, Δxy::NTuple{N,Length}) where {N,T}
         new{T,N}(ip, Δxy)
@@ -53,3 +78,9 @@ end
 # FIX: Generalize for any dimensions <30-10-23> 
 (ipr::IPR{T,2})(xs::AbstractVector, ys::AbstractVector) where {T} = [ipr(x, y) for x in xs, y in ys]
 (ipr::IPR{T,3})(xs::AbstractVector, ys::AbstractVector, zs::AbstractVector) where {T} = [ipr(x, y, z) for x in xs, y in ys, z in zs]
+
+# TODO: Add interface `map_frequencies` to general illumination pattern... <06-11-23> 
+# It needs to be decided:
+# - how to abstract over the image size
+# - not every combination of image acquisitions with illumination patterns are possible to separate. Runtime errors or
+# some use of the dispatch... Can a dispatch be made only for the types that are possible to separate and map.
