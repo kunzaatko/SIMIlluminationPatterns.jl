@@ -14,10 +14,32 @@ end
 const IPR{T,N} = IlluminationPatternRealization{T,N}
 
 # TODO: Add docs and examples <30-10-23> 
-function (ip::IP{N})(T::Type; Δxy::NTuple{N,Length}) where {N}
+@doc raw"""
+    (ip::IP{N})(T::Type{<:Real}; Δxy)::IPR{T,N}
+    (ip::IP{N})(; Δxy)::IPR{T,N}
+
+Create an illumination pattern realization with pixel dimensions `Δxy`.
+
+# Parameters
++ `Δxy`: can be a `NTuple{Length}` or a `Length`
+
+```jldoctest
+julia> h = Harmonic(1.0, π / 4, 2 / 61u"nm", 0.0)
+Harmonic2D(m=1.0, θ=0.7853981633974483, ν=0.03278688524590164 nm^-1, φ=0.0)
+
+julia> h(;Δxy=30.5u"nm")
+SIMIlluminationPatterns.IlluminationPatternRealization{Float64, 2}(Harmonic2D(1.0, 0.7853981633974483, 0.03278688524590164 nm^-1, 0.0), (30.5 nm, 30.5 nm))
+
+julia> h(Float16;Δxy=(33.5u"nm", 30.5u"nm"))
+SIMIlluminationPatterns.IlluminationPatternRealization{Float16, 2}(Harmonic2D(1.0, 0.7853981633974483, 0.03278688524590164 nm^-1, 0.0), (33.5 nm, 30.5 nm))
+
+```
+"""
+function (ip::IP{N})(T::Type{<:Real}; Δxy::Union{NTuple{N,Length},Length}) where {N}
+    Δxy = Δxy isa Length ? tuple(fill(Δxy, N)...) : Δxy
     IPR{T,N}(ip, Δxy)
 end
-(ip::IP{N})(; Δxy::NTuple{N,Length}) where {N} = (ip)(prefered_type(ip); Δxy)
+(ip::IP{N})(; Δxy) where {N} = (ip)(Float64; Δxy)
 
 # FIX: Why is this so slow? Compare with python implementation... The slow part is evaluation of the harmonic <30-10-23> 
 # PERF:  

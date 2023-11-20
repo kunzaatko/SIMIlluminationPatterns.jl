@@ -35,8 +35,6 @@ abstract type IlluminationPattern{N} end
 const IP{N} = IlluminationPattern{N}
 
 (ip::IP{N})(::Vararg{Length,N}) where {N} = error("Not Implemented!")
-# TODO: Add to interface docs <30-10-23> 
-prefered_type(::IP{N}) where {N} = Float64
 
 for func in (:(==), :isequal, :isapprox)
     @eval function Base.$func(ip1::A, ip2::B; kwargs...) where {A<:IlluminationPattern,B<:IlluminationPattern}
