@@ -59,6 +59,10 @@ end
 (ipr::IPR{T,2})(xs::AbstractVector, ys::AbstractVector) where {T} = [ipr(x, y) for x in xs, y in ys]
 (ipr::IPR{T,3})(xs::AbstractVector, ys::AbstractVector, zs::AbstractVector) where {T} = [ipr(x, y, z) for x in xs, y in ys, z in zs]
 
+function Base.show(io::IO, ::MIME"text/plain", ipr::IPR{T,N}) where {T,N}
+    print(io, "$(string(ipr.pattern)){$N}(Δxy = $(allequal(ipr.Δxy) ? ipr.Δxy[1] : ipr.Δxy)) with eltype $T")
+end
+
 # TODO: Add interface `map_frequencies` to general illumination pattern... <06-11-23> 
 # It needs to be decided:
 # - how to abstract over the image size

@@ -108,5 +108,3 @@ function Base.show(io::IO, ::MIME"text/plain", h::Harmonic{3})
 end
 
 export Harmonic, Harmonic2D, Harmonic3D
-
-# TODO: Implement Base.isequal <12-10-23> 
