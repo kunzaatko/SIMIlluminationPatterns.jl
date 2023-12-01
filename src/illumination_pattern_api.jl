@@ -24,10 +24,10 @@ julia> h = Harmonic(1.0, π / 4, 2 / 61u"nm", 0.0)
 Harmonic2D(m=1.0, θ=0.7853981633974483, ν=0.03278688524590164 nm^-1, ϕ=0.0)
 
 julia> h(;Δxy=30.5u"nm")
-Harmonic2D(1.0, 0.7853981633974483, 0.03278688524590164 nm^-1, 0.0){2}(Δxy = 30.5 nm) with eltype Float64
+Harmonic2D(m=1.0, θ=0.7853981633974483, ν=0.03278688524590164 nm^-1, ϕ=0.0)(Δxy = 30.5 nm) with eltype Float64
 
 julia> h(Float16;Δxy=(33.5u"nm", 30.5u"nm"))
-Harmonic2D(1.0, 0.7853981633974483, 0.03278688524590164 nm^-1, 0.0){2}(Δxy = (33.5 nm, 30.5 nm)) with eltype Float16
+Harmonic2D(m=1.0, θ=0.7853981633974483, ν=0.03278688524590164 nm^-1, ϕ=0.0)(Δxy = (33.5 nm, 30.5 nm)) with eltype Float16
 ```
 """
 function (ip::IP{N})(T::Type{<:Real}; Δxy::Union{NTuple{N,Length},Length}) where {N}
@@ -55,8 +55,7 @@ end
 # FIX: Generate grid <30-10-23> 
 # (ipr::IPR{T,2})(x::Real, y::Real) where {T} = ipr.pattern(x * ipr.Δxy[1], y * ipr.Δxy[2])
 # (ipr::IPR{T,3})(x::Real, y::Real, z::Real) where {T} = ipr.pattern(x .* ipr.Δxy[1], y .* ipr.Δxy[2], z .* ipr.Δxy[3])
-(ipr::IPR{T,N})(r::Vararg{T,N}) where {T,N} = ipr.pattern((r .* ipr.Δxy)...)
-(ipr::IPR{T,N})(r::Vararg{Real,N}) where {T,N} = splat(ipr.pattern)(r .* ipr.Δxy)
+(ipr::IPR{T,N})(r::Vararg{Real,N}) where {T,N} = ipr.pattern((r .* ipr.Δxy)...)
 
 # FIX: Generalize for any dimensions <30-10-23> 
 (ipr::IPR{T,2})(xs::AbstractVector, ys::AbstractVector) where {T} = [ipr(x, y) for x in xs, y in ys]

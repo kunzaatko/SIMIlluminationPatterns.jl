@@ -95,8 +95,9 @@ function (h::Harmonic{2})(x::Length, y::Length)
     return 1 + h.m / 2 * cos(2π * sum(cossin(h.θ) .* h.ν .* (x, y)) + h.ϕ)
 end
 
-# TODO:   
-δxy(h::Harmonic{N}) where {N} = 0
+δ(h::Harmonic{N}) where {N} = cossin(h.θ) .* h.ν
+δ(hr::IPR{T,N,Harmonic{N}}, size::NTuple{N,Real}) where {T,N} = hr.Δxy .* δ(hr.pattern) .* size
+δ(hr::IPR{T,N,Harmonic{N}}, size::Real) where {T,N} = δ(hr, tuple(fill(size, N)...))
 
 # TODO: Abstract to multiple dimensions <30-10-23> 
 # function (h::Harmonic{N})(v::Vararg{Length,N}) where {N}

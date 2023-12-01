@@ -38,7 +38,7 @@ end
             @testset "Primary constructor checks" begin
                 @test_throws DomainError Harmonic(-0.1, θ, ν, ϕ)
                 @test_throws DomainError Harmonic(1.1, θ, ν, ϕ)
-                @test_throws DomainError Harmonic(m, -π / 2, ν, ϕ)
+                @test_throws DomainError Harmonic(m, -3π / 2, ν, ϕ)
                 @test_throws DomainError Harmonic(m, 3π / 2, ν, ϕ)
                 @test_throws DomainError Harmonic(m, θ, ν, -0.1)
                 @test_throws DomainError Harmonic(m, θ, ν, 5π / 2)
@@ -52,7 +52,7 @@ end
 
                 @testset "Equivalences" begin
                     @test Harmonic(m, θ, Δxy / 2, ϕ) == Harmonic(m, θ, 2 / Δxy, ϕ)
-                    @test_broken Harmonic(m, (2 / (cos(θ) * Δxy), 2 / (sin(θ) * Δxy)), ϕ) == Harmonic(m, θ, ν, ϕ)
+                    @test Harmonic(m, (1 / (cos(θ) * Δxy), 1 / (sin(θ) * Δxy)), ϕ) ≈ Harmonic(m, θ, ν, ϕ)
                 end
             end
         end
