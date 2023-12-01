@@ -13,8 +13,12 @@ macro no_error(ex)
 end
 
 @testset "SIMIlluminationPatterns.jl" begin
-    @testset "Code quality (Aqua.jl)" begin
-        Aqua.test_all(SIMIlluminationPatterns; ambiguities=VERSION >= v"1.1" ? (; broken=true) : false)
+    if haskey(ENV, "RUNTESTS_FULL") || haskey(ENV, "GITHUB_ACTIONS")
+        @testset "Code quality (Aqua.jl)" begin
+            Aqua.test_all(SIMIlluminationPatterns; ambiguities=VERSION >= v"1.1" ? (; broken=true) : false)
+        end
+    else
+        @info "Skipping Aqua.jl quality tests. For a full run set `ENV[\"RUNTESTS_FULL\"]=true`."
     end
     # NOTE: Better than doc-testing in `make.jl` because, I can track the coverage
     @testset "DocTests" begin
@@ -46,6 +50,7 @@ end
                 end
             end
         end
+
         @testset "interfaces from Base" begin
             h1 = Harmonic(1, π / 4, 2 / 61u"nm", 0)
             h2 = Harmonic(1.0, π / 4, 2 / 61u"nm", 0.0)
