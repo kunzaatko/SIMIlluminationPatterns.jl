@@ -36,18 +36,26 @@ function (ip::IP{N})(T::Type{<:Real}; Δxy::Union{NTuple{N,Length},Length}) wher
 end
 (ip::IP{N})(; Δxy) where {N} = (ip)(Float64; Δxy)
 
-# FIX: Why is this so slow? Compare with python implementation... The slow part is evaluation of the harmonic <30-10-23> 
+# FIX: Why is this so slow? The slow part is evaluation of the harmonic <30-10-23> 
+# NOTE: This would be a terrible problem for the optimization reconstruction...
 # PERF:  
+# JULIA:
 #  @benchmark [1 + m / 2 * cos(2π * sum(sincos(θ) .* ν .* (y, x)) + ϕ) for y in 1:1024, x in 1:1024]
 #  Time  (mean ± σ):   799.778 ms ±   6.472 ms  ┊ GC (mean ± σ):  3.58% ± 0.24%
 #
 # @benchmark Harmonic(0.5, π/4, 2/61u"nm", 0.0)(;Δxy = (30.5u"nm", 30.5u"nm"))(1:1024, 1:1024)
 #  Time  (mean ± σ):   845.213 ms ±  10.466 ms  ┊ GC (mean ± σ):  4.44% ± 0.25%
+#
+# PYTHON:
+# In [2]: %time A = illumination_pattern(0.6, 0.12, 0.5, 1, 1024)
+# CPU times: user 18.5 ms, sys: 10.2 ms, total: 28.7 ms
+# Wall time: 35.6 ms
 
 # FIX: T should be used for generating of the given type this should be generalized in the pattern type <30-10-23> 
 # FIX: Generate grid <30-10-23> 
-(ipr::IPR{T,2})(x::Real, y::Real) where {T} = ipr.pattern(x * ipr.Δxy[1], y * ipr.Δxy[2])
-(ipr::IPR{T,3})(x::Real, y::Real, z::Real) where {T} = ipr.pattern(x .* ipr.Δxy[1], y .* ipr.Δxy[2], z .* ipr.Δxy[3])
+# (ipr::IPR{T,2})(x::Real, y::Real) where {T} = ipr.pattern(x * ipr.Δxy[1], y * ipr.Δxy[2])
+# (ipr::IPR{T,3})(x::Real, y::Real, z::Real) where {T} = ipr.pattern(x .* ipr.Δxy[1], y .* ipr.Δxy[2], z .* ipr.Δxy[3])
+(ipr::IPR{T,N})(r::Vararg{T,N}) where {T,N} = ipr.pattern((r .* ipr.Δxy)...)
 (ipr::IPR{T,N})(r::Vararg{Real,N}) where {T,N} = splat(ipr.pattern)(r .* ipr.Δxy)
 
 # FIX: Generalize for any dimensions <30-10-23> 
