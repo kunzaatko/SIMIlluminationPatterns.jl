@@ -2,12 +2,12 @@
 `N`-dimensional illumination pattern realization. You can fix the pixels sizes (`Δxy`) and sample the 
 pattern on your sensor and optical system setup.
 """
-struct IlluminationPatternRealization{T<:Real,N}
-    pattern::IP{N}
+struct IlluminationPatternRealization{T<:Real,N,IP<:IlluminationPattern{N}}
+    pattern::IP
     "Pixel dimensions in the object space"
     Δxy::NTuple{N,Length}
 end
-const IPR{T,N} = IlluminationPatternRealization{T,N}
+const IPR = IlluminationPatternRealization
 
 # TODO: Add docs and examples <30-10-23> 
 @doc raw"""
@@ -32,7 +32,7 @@ Harmonic2D(1.0, 0.7853981633974483, 0.03278688524590164 nm^-1, 0.0){2}(Δxy = (3
 """
 function (ip::IP{N})(T::Type{<:Real}; Δxy::Union{NTuple{N,Length},Length}) where {N}
     Δxy = Δxy isa Length ? tuple(fill(Δxy, N)...) : Δxy
-    IPR{T,N}(ip, Δxy)
+    IPR{T,N,typeof(ip)}(ip, Δxy)
 end
 (ip::IP{N})(; Δxy) where {N} = (ip)(Float64; Δxy)
 
