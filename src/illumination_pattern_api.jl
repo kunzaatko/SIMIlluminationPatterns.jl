@@ -21,7 +21,7 @@ Create an illumination pattern realization with pixel dimensions `Δxy`.
 
 ```jldoctest
 julia> h = Harmonic(1.0, π / 4, 2 / 61u"nm", 0.0)
-Harmonic2D(m=1.0, θ=0.7853981633974483, ν=0.03278688524590164 nm^-1, φ=0.0)
+Harmonic2D(m=1.0, θ=0.7853981633974483, ν=0.03278688524590164 nm^-1, ϕ=0.0)
 
 julia> h(;Δxy=30.5u"nm")
 Harmonic2D(1.0, 0.7853981633974483, 0.03278688524590164 nm^-1, 0.0){2}(Δxy = 30.5 nm) with eltype Float64

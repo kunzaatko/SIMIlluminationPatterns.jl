@@ -9,15 +9,27 @@ Harmonic (sinusoidal) illumination pattern in the form
     I(\vec{r})=1+{\frac{m}{2}}\cos\left(2π⋅ (kₓ⋅(\vec{r})ₓ + k_y ⋅ (\vec{r})_y) + \phi\right)
 ```
 
+    Harmonic(m::Real, θ::Real, ν::Frequency, ϕ::Real)
+    Harmonic(m::Real, (ν_x, ν_y)::Tuple{Frequency,Frequency}, ϕ::Real)
+    Harmonic(m::Real, (ν_x, ν_y)::Tuple{Real,Real}, ϕ::Real, Δxy::Length)
+    Harmonic(m::Real, (ν_x, ν_y)::Tuple{Real,Real}, ϕ::Real, (Δx, Δy)::Tuple{Length,Length})
+
+    Harmonic(m::Real, θ::Real, λ::Length, ϕ::Real)
+    Harmonic(m::Real, (λ_x, λ_y)::Tuple{Length,Length}, ϕ::Real)
+    Harmonic(m::Real, θ::Real, λ::Real, ϕ::Real, Δxy::Length)
+    Harmonic(m::Real, θ::Real, λ::Real, ϕ::Real, (Δx, Δy)::Tuple{Length,Length})
+
+
 Parameters have types `Real`, `Frequency` or `Length` and denote:
-* `m`: modulation factor
-* `ν`: frequency (`\nu`)
-* `λ`: wavelength (`\lambda`)
-* `θ`: orientation angle (from the ``x``-axis) (`\theta`)
-* `(kx, ky)`: wave vector (``(k_x, k_y) = (\sin(θ) ⋅ ν , \, \cos(θ) ⋅ ν)``)
-* `(δx, δy)`: wavepeak vector (``(δ_x, δ_y) = (\sin(θ) ⋅ λ , \, \cos(θ) ⋅ λ)``)
-* `ϕ`: phase offset (`\phi`)
-* `Δxy` or `(Δx, Δy)`: ``x``-axis and ``y``-axis pixel sizes
++ `m`: modulation factor
++ `θ`: orientation angle (from the ``x``-axis) (`\theta`)
++ `ν`: frequency (`\nu`)
++ `(ν_x, ν_y)`: wave vector ("shift") (``(ν_x, ν_y) = (\sin(θ) ⋅ ν , \, \cos(θ) ⋅ ν)``)
++ `λ`: wavelength (`\lambda`)
++ `(λ_x, λ_y)`: wavepeak vector (``(λ_x, λ_y) = (\sin(θ) ⋅ λ , \, \cos(θ) ⋅ λ)``)
++ `ϕ`: phase offset (`\phi`)
++ `Δxy` or `(Δx, Δy)`: ``x``-axis and ``y``-axis pixel sizes
+
 """
 struct Harmonic{d} <: IP{d}
     "amplitude modulation"
@@ -37,45 +49,49 @@ struct Harmonic{d} <: IP{d}
         return new{N}(m, θ, ν, ϕ)
     end
 end
+
+
 const Harmonic2D = Harmonic{2}
-
-# FIX: Is this the best way to set the default N? <30-10-23> 
-Harmonic(a...) = Harmonic{2}(a...)
-
 @doc raw"""
-    Harmonic2D(m::Real, θ::Real, ν::Frequency, ϕ::Real)
-    Harmonic2D(m::Real, (kx, ky)::Tuple{Frequency,Frequency}, ϕ::Real)
-    Harmonic2D(m::Real, θ::Real, λ::Length, ϕ::Real)
-    Harmonic2D(m::Real, (δx, δy)::Tuple{Length,Length}, ϕ::Real)
-    Harmonic2D(m::Real, θ::Real, λ::Real, ϕ::Real, Δxy::Length)
-    Harmonic2D(m::Real, (kx, ky)::Tuple{Real,Real}, ϕ::Real, Δxy::Length)
-    Harmonic2D(m::Real, (δx, δy)::Tuple{Length,Length}, ϕ::Real)
-    Harmonic2D(m::Real, θ::Real, λ::Real, ϕ::Real, (Δx, Δy)::Tuple{Length,Length})
-    Harmonic2D(m::Real, (δx, δy)::Tuple{Real,Real}, ϕ::Real, (Δx, Δy)::Tuple{Length,Length})
-
 ```@repl
-Harmonic2D <: IlluminationPattern{2}
+Harmonic2D === Harmonic{2}
+Harmonic{2} <: IlluminationPattern{2}
 ```
 """
 Harmonic2D
-Harmonic{N}(m::Real, θ::Real, λ::Length, ϕ::Real) where {N} = Harmonic{N}(m, θ, 1 / λ, ϕ)
-# FIX: Check if hypot(k[1], k[2]) is correct <12-10-23> 
-Harmonic{N}(m::Real, k::Tuple{Frequency,Frequency}, ϕ::Real) where {N} = Harmonic{N}(m, atan(ustrip(k[2]), ustrip(k[1])), hypot(k[1], k[2]), ϕ)
-Harmonic{N}(m::Real, δ::Tuple{Length,Length}, ϕ::Real) where {N} = Harmonic{N}(m, atan(ustrip(δ[2]), ustrip(δ[1])), hypot(ustrip(δ[1]), ustrip(δ[2])), ϕ)
 
-# Harmonic{N}(m::Real, θ::Real, λ::Length, ϕ::Real)
-# Harmonic{N}(m::Real, (δx, δy)::Tuple{Length,Length}, ϕ::Real)
-# Harmonic{N}(m::Real, θ::Real, λ::Real, ϕ::Real, Δxy::Length)
-# Harmonic{N}(m::Real, (kx, ky)::Tuple{Real,Real}, ϕ::Real, Δxy::Length)
-# Harmonic{N}(m::Real, (δx, δy)::Tuple{Length,Length}, ϕ::Real)
-# Harmonic{N}(m::Real, θ::Real, λ::Real, ϕ::Real, (Δx, Δy)::Tuple{Length,Length})
-# Harmonic{N}(m::Real, (δx, δy)::Tuple{Real,Real}, ϕ::Real, (Δx, Δy)::Tuple{Length,Length})
+const Harmonic3D = Harmonic{3}
+@doc """
+```@repl
+Harmonic3D === Harmonic{3}
+Harmonic{3} <: IlluminationPattern{3}
+```
+"""
+Harmonic3D
 
-function (h::Harmonic2D)(x::Length, y::Length)
+# NOTE: Purposely not using "tan2". θ ∈ [0, π]
+θν(ν::Tuple{Frequency,Frequency}) = (tan(ν[2] / ν[1]), hypot(ν...))
+θν(ν::Tuple{Real,Real}, Δxy::Union{Tuple{Length,Length},Length}) = θν(ν ./ Δxy)
+# NOTE: Purposely not using "tan2". θ ∈ [0, π]
+θν(λ::Tuple{Length,Length}) = (tan(λ[2] / λ[1]), ν(hypot(λ...)))
+ν(λ::Length) = 1 / λ
+θν(θ::Real, λ::Real, Δxy::Union{Tuple{Length,Length},Length}) = θν(λ .* sincos(θ) .* Δxy)
+
+Harmonic(a...) = Harmonic{2}(a...)
+Harmonic{N}(m::Real, ν::Tuple{Frequency,Frequency}, ϕ::Real) where {N} = Harmonic{N}(m, θν(ν)..., ϕ)
+Harmonic{N}(m::Real, ν::Tuple{Real,Real}, ϕ::Real, Δxy::Union{Tuple{Length,Length},Length}) where {N} = Harmonic{N}(m, θν(ν, Δxy)..., ϕ)
+Harmonic{N}(m::Real, λ::Tuple{Length,Length}, ϕ::Real) where {N} = Harmonic{N}(m, θν(λ)..., ϕ)
+Harmonic{N}(m::Real, θ::Real, λ::Length, ϕ::Real) where {N} = Harmonic{N}(m, θ, ν(λ), ϕ)
+Harmonic{N}(m::Real, θ::Real, λ::Real, ϕ::Real, Δxy::Union{Tuple{Length,Length},Length}) where {N} = Harmonic{N}(m, θ, θν(θ, λ, Δxy), ϕ)
+
+function (h::Harmonic{2})(x::Length, y::Length)
     # TODO: Monomorphize the Length and Frequency <12-10-23> 
     # m, θ, ϕ = promote(h.m, h.θ, h.ϕ)
     return 1 + h.m / 2 * cos(2π * sum(sincos(h.θ) .* h.ν .* (y, x)) + h.ϕ)
 end
+
+# TODO:   
+δxy(h::Harmonic{N}) where {N} = 0
 
 # TODO: Abstract to multiple dimensions <30-10-23> 
 # function (h::Harmonic{N})(v::Vararg{Length,N}) where {N}
@@ -91,20 +107,8 @@ end
 
 # TODO: Print the parameters that the Harmonic was created with with show. This would be done by storing them in the
 # type itself <12-10-23> 
-function Base.show(io::IO, ::MIME"text/plain", h::Harmonic{2})
-    print(io, "Harmonic2D(", "m=", h.m, ", θ=", h.θ, ", ν=", h.ν, ", φ=", h.ϕ, ")")
-end
-
-const Harmonic3D = Harmonic{3}
-@doc raw"""
-```@example
-Harmonic3D <: IlluminationPattern{3}
-```
-"""
-Harmonic3D
-
-function Base.show(io::IO, ::MIME"text/plain", h::Harmonic{3})
-    print(io, "Harmonic3D(", "m=", h.m, ", θ=", h.θ, ", ν=", h.ν, ", φ=", h.ϕ, ")")
+function Base.show(io::IO, ::MIME"text/plain", h::Harmonic{N}) where {N}
+    print(io, "Harmonic$(N)D(", "m=", h.m, ", θ=", h.θ, ", ν=", h.ν, ", ϕ=", h.ϕ, ")")
 end
 
 export Harmonic, Harmonic2D, Harmonic3D
