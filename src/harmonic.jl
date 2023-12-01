@@ -19,12 +19,17 @@ Harmonic (sinusoidal) illumination pattern in the form
     Harmonic(m::Real, θ::Real, λ::Real, ϕ::Real, Δxy::Length)
     Harmonic(m::Real, θ::Real, λ::Real, ϕ::Real, (Δx, Δy)::Tuple{Length,Length})
 
+    Harmonic(m::Real, (δ_x, δ_y)::Tuple{Real, Real}, size::Union{Tuple{Real, Real}, Real}, ϕ::Real, Δxy::Length)
+    Harmonic(m::Real, (δ_x, δ_y)::Tuple{Real, Real}, size::Union{Tuple{Real, Real}, Real}, ϕ::Real, (Δx, Δy)::Tuple{Length,Length})
+
 
 Parameters have types `Real`, `Frequency` or `Length` and denote:
 + `m`: modulation factor
 + `θ`: orientation angle (from the ``x``-axis) (`\theta`)
 + `ν`: frequency (`\nu`)
-+ `(ν_x, ν_y)`: wave vector ("shift") (``(ν_x, ν_y) = (\sin(θ) ⋅ ν , \, \cos(θ) ⋅ ν)``)
++ `(ν_x, ν_y)`: wave vector ('shift' in physical units) (``(ν_x, ν_y) = (\sin(θ) ⋅ ν , \, \cos(θ) ⋅ ν)``)
++ `(δ_x, δ_y)`: shift in pixels
++ `size`: size of acquisition image, from which the shift `(δ_x, δ_y)` is determined
 + `λ`: wavelength (`\lambda`)
 + `(λ_x, λ_y)`: wavepeak vector (``(λ_x, λ_y) = (\sin(θ) ⋅ λ , \, \cos(θ) ⋅ λ)``)
 + `ϕ`: phase offset (`\phi`)
@@ -68,13 +73,13 @@ Harmonic{3} <: IlluminationPattern{3}
 """
 Harmonic3D
 
-# NOTE: Purposely not using "tan2". θ ∈ [0, π]
 @inline cossin(θ::Real) = reverse(sincos(θ))
 θν(ν::Tuple{Frequency,Frequency}) = (atan(ν[2], ν[1]), hypot(ν...))
 θν(ν::Tuple{Real,Real}, Δxy::Union{Tuple{Length,Length},Length}) = θν(ν ./ Δxy)
 θν(λ::Tuple{Length,Length}) = (atan(λ[2], λ[1]), ν(prod(λ) / hypot(λ...)))
 ν(λ::Length) = 1 / λ
 θν(θ::Real, λ::Real, Δxy::Union{Tuple{Length,Length},Length}) = θν(λ .* cossin(θ) .* Δxy)
+θν(δ::Tuple{Real,Real}, size::Union{Tuple{Real,Real},Real}, Δxy::Union{Tuple{Length,Length},Length}) = θν(δ ./ (size .* Δxy))
 
 Harmonic(a...) = Harmonic{2}(a...)
 Harmonic{N}(m::Real, ν::Tuple{Frequency,Frequency}, ϕ::Real) where {N} = Harmonic{N}(m, θν(ν)..., ϕ)
@@ -82,6 +87,7 @@ Harmonic{N}(m::Real, ν::Tuple{Real,Real}, ϕ::Real, Δxy::Union{Tuple{Length,Le
 Harmonic{N}(m::Real, λ::Tuple{Length,Length}, ϕ::Real) where {N} = Harmonic{N}(m, θν(λ)..., ϕ)
 Harmonic{N}(m::Real, θ::Real, λ::Length, ϕ::Real) where {N} = Harmonic{N}(m, θ, ν(λ), ϕ)
 Harmonic{N}(m::Real, θ::Real, λ::Real, ϕ::Real, Δxy::Union{Tuple{Length,Length},Length}) where {N} = Harmonic{N}(m, θ, θν(θ, λ, Δxy), ϕ)
+Harmonic{N}(m::Real, δ::Tuple{Real,Real}, size::Union{Tuple{Real,Real},Real}, ϕ::Real, Δxy::Union{Tuple{Length,Length},Length}) where {N} = Harmonic{N}(m, θν(δ, size, Δxy)..., ϕ)
 
 function (h::Harmonic{2})(x::Length, y::Length)
     # TODO: Monomorphize the Length and Frequency <12-10-23> 
