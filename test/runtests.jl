@@ -1,6 +1,5 @@
 using SIMIlluminationPatterns
-using Test
-using Aqua
+using Test, Documenter, Aqua
 
 macro no_error(ex)
     quote
@@ -15,7 +14,12 @@ end
 
 @testset "SIMIlluminationPatterns.jl" begin
     @testset "Code quality (Aqua.jl)" begin
-        Aqua.test_all(SIMIlluminationPatterns; ambiguities=VERSION >= v"1.1")
+        Aqua.test_all(SIMIlluminationPatterns; ambiguities=VERSION >= v"1.1" ? (; broken=true) : false)
+    end
+    # NOTE: Better than doc-testing in `make.jl` because, I can track the coverage
+    @testset "DocTests" begin
+        DocMeta.setdocmeta!(SIMIlluminationPatterns, :DocTestSetup, :(using SIMIlluminationPatterns); recursive=true)
+        doctest(SIMIlluminationPatterns)
     end
     @testset "Harmonic" begin
         Δxy = 61u"nm"

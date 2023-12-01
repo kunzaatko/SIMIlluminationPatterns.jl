@@ -28,11 +28,10 @@ julia> h = Harmonic(1.0, π / 4, 2 / 61u"nm", 0.0)
 Harmonic2D(m=1.0, θ=0.7853981633974483, ν=0.03278688524590164 nm^-1, φ=0.0)
 
 julia> h(;Δxy=30.5u"nm")
-SIMIlluminationPatterns.IlluminationPatternRealization{Float64, 2}(Harmonic2D(1.0, 0.7853981633974483, 0.03278688524590164 nm^-1, 0.0), (30.5 nm, 30.5 nm))
+Harmonic2D(1.0, 0.7853981633974483, 0.03278688524590164 nm^-1, 0.0){2}(Δxy = 30.5 nm) with eltype Float64
 
 julia> h(Float16;Δxy=(33.5u"nm", 30.5u"nm"))
-SIMIlluminationPatterns.IlluminationPatternRealization{Float16, 2}(Harmonic2D(1.0, 0.7853981633974483, 0.03278688524590164 nm^-1, 0.0), (33.5 nm, 30.5 nm))
-
+Harmonic2D(1.0, 0.7853981633974483, 0.03278688524590164 nm^-1, 0.0){2}(Δxy = (33.5 nm, 30.5 nm)) with eltype Float16
 ```
 """
 function (ip::IP{N})(T::Type{<:Real}; Δxy::Union{NTuple{N,Length},Length}) where {N}
