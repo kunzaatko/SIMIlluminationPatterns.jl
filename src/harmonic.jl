@@ -44,12 +44,11 @@ struct Harmonic{d} <: IP{d}
     function Harmonic{N}(m::Real, θ::Real, ν::Frequency, ϕ::Real) where {N}
         m <= one(m) || throw(DomainError(m, "amplitude modulation >1 would produce negative illumination intensities, which does not make sense"))
         m >= zero(m) || throw(DomainError(m, "amplitude modulation ∈(-1,0) is equivalent to shifting the phase offset by π (180°) and is not allowed"))
-        zero(θ) <= θ < π || throw(DomainError(θ, "use an orientation ∈[0, π) (between 0° and 180°) (perhaps you should use: `mod(θ, π)`)"))
+        -π < θ <= π || throw(DomainError(θ, "use an orientation ∈(-π, π) (between -180° and 180°) (perhaps you should use: `mod(θ + π, 2π) - π`)"))
         zero(ϕ) <= ϕ < 2π || throw(DomainError(ϕ, "use a phase offset ∈[0, 2π) (between 0° and 360°) (perhaps you should use: `mod(ϕ, 2π)`)"))
         return new{N}(m, θ, ν, ϕ)
     end
 end
-
 
 const Harmonic2D = Harmonic{2}
 @doc raw"""
@@ -70,12 +69,12 @@ Harmonic{3} <: IlluminationPattern{3}
 Harmonic3D
 
 # NOTE: Purposely not using "tan2". θ ∈ [0, π]
-θν(ν::Tuple{Frequency,Frequency}) = (tan(ν[2] / ν[1]), hypot(ν...))
+@inline cossin(θ::Real) = reverse(sincos(θ))
+θν(ν::Tuple{Frequency,Frequency}) = (atan(ν[2], ν[1]), hypot(ν...))
 θν(ν::Tuple{Real,Real}, Δxy::Union{Tuple{Length,Length},Length}) = θν(ν ./ Δxy)
-# NOTE: Purposely not using "tan2". θ ∈ [0, π]
-θν(λ::Tuple{Length,Length}) = (tan(λ[2] / λ[1]), ν(hypot(λ...)))
+θν(λ::Tuple{Length,Length}) = (atan(λ[2], λ[1]), ν(prod(λ) / hypot(λ...)))
 ν(λ::Length) = 1 / λ
-θν(θ::Real, λ::Real, Δxy::Union{Tuple{Length,Length},Length}) = θν(λ .* sincos(θ) .* Δxy)
+θν(θ::Real, λ::Real, Δxy::Union{Tuple{Length,Length},Length}) = θν(λ .* cossin(θ) .* Δxy)
 
 Harmonic(a...) = Harmonic{2}(a...)
 Harmonic{N}(m::Real, ν::Tuple{Frequency,Frequency}, ϕ::Real) where {N} = Harmonic{N}(m, θν(ν)..., ϕ)
@@ -87,7 +86,7 @@ Harmonic{N}(m::Real, θ::Real, λ::Real, ϕ::Real, Δxy::Union{Tuple{Length,Leng
 function (h::Harmonic{2})(x::Length, y::Length)
     # TODO: Monomorphize the Length and Frequency <12-10-23> 
     # m, θ, ϕ = promote(h.m, h.θ, h.ϕ)
-    return 1 + h.m / 2 * cos(2π * sum(sincos(h.θ) .* h.ν .* (y, x)) + h.ϕ)
+    return 1 + h.m / 2 * cos(2π * sum(cossin(h.θ) .* h.ν .* (x, y)) + h.ϕ)
 end
 
 # TODO:   
