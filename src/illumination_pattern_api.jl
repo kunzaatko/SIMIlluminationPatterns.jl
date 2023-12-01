@@ -3,13 +3,9 @@
 pattern on your sensor and optical system setup.
 """
 struct IlluminationPatternRealization{T<:Real,N}
-    "physical illumination pattern"
     pattern::IP{N}
-    "pixel dimensions"
+    "Pixel dimensions in the object space"
     Δxy::NTuple{N,Length}
-    function IlluminationPatternRealization{T,N}(ip::IP{N}, Δxy::NTuple{N,Length}) where {N,T}
-        new{T,N}(ip, Δxy)
-    end
 end
 const IPR{T,N} = IlluminationPatternRealization{T,N}
 
@@ -66,4 +62,6 @@ end
 # It needs to be decided:
 # - how to abstract over the image size
 # - not every combination of image acquisitions with illumination patterns are possible to separate. Runtime errors or
-# some use of the dispatch... Can a dispatch be made only for the types that are possible to separate and map.
+# some use of the dispatch... Can a dispatch be made only for the types that are possible to separate and map. Perhaps
+# a trait which would make it clear, whether a backward model is determined... Otherwise only possible reconstruction
+# methods will be inversion methods.

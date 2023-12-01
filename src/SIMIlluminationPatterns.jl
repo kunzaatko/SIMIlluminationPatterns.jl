@@ -10,7 +10,7 @@ using Unitful: Length
 # type system
 include("common.jl")
 
-# generic functions
+# Helper API
 include("illumination_pattern_api.jl")
 
 # specific illumination patterns
