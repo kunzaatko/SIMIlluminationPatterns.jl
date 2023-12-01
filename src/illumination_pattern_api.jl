@@ -64,7 +64,8 @@ end
 (ipr::IPR{T,N})(size::NTuple{N,Integer}) where {T,N} = ipr(map(s -> 0:(s-1), size)...)
 
 function Base.show(io::IO, ::MIME"text/plain", ipr::IPR{T,N}) where {T,N}
-    print(io, "$(string(ipr.pattern)){$N}(Δxy = $(allequal(ipr.Δxy) ? ipr.Δxy[1] : ipr.Δxy)) with eltype $T")
+    show(io, MIME("text/plain"), ipr.pattern)
+    print(io, "(Δxy = $(allequal(ipr.Δxy) ? ipr.Δxy[1] : ipr.Δxy)) with eltype $T")
 end
 
 # TODO: Add interface `map_frequencies` to general illumination pattern... <06-11-23> 
