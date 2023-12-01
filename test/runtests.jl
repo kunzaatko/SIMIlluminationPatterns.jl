@@ -15,15 +15,21 @@ end
 @testset "SIMIlluminationPatterns.jl" begin
     if haskey(ENV, "RUNTESTS_FULL") || haskey(ENV, "GITHUB_ACTIONS")
         @testset "Code quality (Aqua.jl)" begin
-            Aqua.test_all(SIMIlluminationPatterns; ambiguities=VERSION >= v"1.1" ? (; broken=true) : false)
+            Aqua.test_all(
+                SIMIlluminationPatterns;
+                # ambiguities=VERSION >= v"1.1" ? (; broken=true) : false
+            )
         end
     else
         @info "Skipping Aqua.jl quality tests. For a full run set `ENV[\"RUNTESTS_FULL\"]=true`."
     end
-    # NOTE: Better than doc-testing in `make.jl` because, I can track the coverage
-    @testset "DocTests" begin
-        DocMeta.setdocmeta!(SIMIlluminationPatterns, :DocTestSetup, :(using SIMIlluminationPatterns); recursive=true)
-        doctest(SIMIlluminationPatterns)
+    # NOTE: Show for `Unitful` does nm⁻¹ on macOS and nm^-1 on Linux. This is necessary, since the `jldoctest` is only one
+    if !haskey(ENV, "GITHUB_ACTIONS") || haskey(ENV, "RUNNER_OS") && ENV["RUNNER_OS"] == "Linux"
+        @testset "DocTests" begin
+            # NOTE: Better than doc-testing in `make.jl` because, I can track the coverage
+            DocMeta.setdocmeta!(SIMIlluminationPatterns, :DocTestSetup, :(using SIMIlluminationPatterns); recursive=true)
+            doctest(SIMIlluminationPatterns)
+        end
     end
     @testset "Harmonic" begin
         Δxy = 61u"nm"

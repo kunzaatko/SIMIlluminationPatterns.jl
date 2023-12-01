@@ -33,7 +33,9 @@ makedocs(;
             "Bibliography" => "pages/05_bibliography.md"
         ]
     ],
-    plugins=[bib]
+    plugins=[bib],
+    # NOTE: doctesting is done in the `runtests.jl` so it is not necessary to do here
+    doctest=false
 )
 
 deploydocs(;
