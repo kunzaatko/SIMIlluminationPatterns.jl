@@ -47,7 +47,8 @@ struct Harmonic{d} <: IP{d}
     ϕ::Real
 
     function Harmonic{N}(m::Real, θ::Real, ν::Frequency, ϕ::Real) where {N}
-        m <= one(m) || throw(DomainError(m, "amplitude modulation >1 would produce negative illumination intensities, which does not make sense"))
+        # m <= 2one(m) || throw(DomainError(m, "amplitude modulation >2 would produce negative illumination intensities, which does not make sense"))
+        m <= 2one(m) || @warn "amplitude modulation >2 produces negative illumination intensities and should be avoided if possible"
         m >= zero(m) || throw(DomainError(m, "amplitude modulation ∈(-1,0) is equivalent to shifting the phase offset by π (180°) and is not allowed"))
         -π < θ <= π || throw(DomainError(θ, "use an orientation ∈(-π, π) (between -180° and 180°) (perhaps you should use: `mod(θ + π, 2π) - π`)"))
         zero(ϕ) <= ϕ < 2π || throw(DomainError(ϕ, "use a phase offset ∈[0, 2π) (between 0° and 360°) (perhaps you should use: `mod(ϕ, 2π)`)"))
@@ -97,7 +98,9 @@ end
 
 δ(h::Harmonic{N}) where {N} = cossin(h.θ) .* h.ν
 δ(hr::IPR{T,N,Harmonic{N}}, size::NTuple{N,Real}) where {T,N} = hr.Δxy .* δ(hr.pattern) .* size
-δ(hr::IPR{T,N,Harmonic{N}}, size::Real) where {T,N} = δ(hr, tuple(fill(size, N)...))
+
+# CHECK: This gives the shift δ that is determined by the size of the image... Is this correct? <05-12-23> 
+δ(hr::IPR{T,N,Harmonic{N}}, size::Real) where {T,N} = δ(hr, ntuple(_ -> size, Val(N)))
 
 # TODO: Abstract to multiple dimensions <30-10-23> 
 # function (h::Harmonic{N})(v::Vararg{Length,N}) where {N}

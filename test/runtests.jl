@@ -37,7 +37,8 @@ end
         @testset "Constructors" begin
             @testset "Primary constructor checks" begin
                 @test_throws DomainError Harmonic(-0.1, θ, ν, ϕ)
-                @test_throws DomainError Harmonic(1.1, θ, ν, ϕ)
+                # TODO: Make a test that checks that the function `@warn`s <11-12-23> 
+                @test @no_error Harmonic(2.1, θ, ν, ϕ) # should only warn
                 @test_throws DomainError Harmonic(m, -3π / 2, ν, ϕ)
                 @test_throws DomainError Harmonic(m, 3π / 2, ν, ϕ)
                 @test_throws DomainError Harmonic(m, θ, ν, -0.1)
@@ -54,6 +55,11 @@ end
                     @test Harmonic(m, θ, Δxy / 2, ϕ) == Harmonic(m, θ, 2 / Δxy, ϕ)
                     @test Harmonic(m, (1 / (cos(θ) * Δxy), 1 / (sin(θ) * Δxy)), ϕ) ≈ Harmonic(m, θ, ν, ϕ)
                 end
+            end
+            @testset "Component Separation" begin
+                using SIMIlluminationPatterns: separation_matrix
+                using LinearAlgebra
+                @test separation_matrix((1, 2, 3), (2, 2, 2)) * transpose([1 1 1; exp(im) exp(2im) exp(3im); exp(-im) exp(-2im) exp(-3im)]) ≈ I(3)
             end
         end
 

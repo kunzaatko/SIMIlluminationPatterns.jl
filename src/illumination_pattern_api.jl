@@ -30,8 +30,9 @@ julia> h(Float16;Δxy=(33.5u"nm", 30.5u"nm"))
 Harmonic2D(m=1.0, θ=0.7853981633974483, ν=0.03278688524590164 nm^-1, ϕ=0.0)(Δxy = (33.5 nm, 30.5 nm)) with eltype Float16
 ```
 """
+# NOTE: `Δxy` as a union type because it is impossible to dispatch on named arguments types
 function (ip::IP{N})(T::Type{<:Real}; Δxy::Union{NTuple{N,Length},Length}) where {N}
-    Δxy = Δxy isa Length ? tuple(fill(Δxy, N)...) : Δxy
+    Δxy = Δxy isa Length ? ntuple(_ -> Δxy, Val(N)) : Δxy
     IPR{T,N,typeof(ip)}(ip, Δxy)
 end
 (ip::IP{N})(; Δxy) where {N} = (ip)(Float64; Δxy)
