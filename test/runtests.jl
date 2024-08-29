@@ -17,7 +17,7 @@ end
         @testset "Code quality (Aqua.jl)" begin
             Aqua.test_all(
                 SIMIlluminationPatterns;
-                # ambiguities=VERSION >= v"1.1" ? (; broken=true) : false
+                ambiguities=(; exclude=VERSION >= v"1.11" ? [checkindex, checkbounds] : [])
             )
         end
     else
