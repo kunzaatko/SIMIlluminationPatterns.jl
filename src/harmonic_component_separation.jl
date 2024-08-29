@@ -35,26 +35,26 @@ end
 separation_matrix(ϕs::NTuple{3,<:Real}, m::NTuple{3,<:Real}=(1, 1, 1)) = separation_matrix(Float64, ϕs, m)
 
 # FIX: Is this correct for 3D SIM? <30-11-23> 
-function separate_components(siis::NTuple{3,IlluminatedImage{T,N,Harmonic{N}}}) where {T,N}
-    θs = map(sii -> sii.illumination_pattern.pattern.θ, siis)
-    allequal(θs) || ArgumentError("All images must have the same orientation. Given orientations $(θs).")
-
-    ϕs = map(sii -> sii.illumination_pattern.pattern.ϕ, siis)
-    ms = map(sii -> sii.illumination_pattern.pattern.m, siis)
-    M_inv = separation_matrix(T, ϕs, ms)
-
-    # NOTE: FFTW doesn't know how to work with Gray types <30-11-23> 
-    imgs = map(sii -> eltype(sii.img) isa AbstractGray ? gray.(sii.img) : sii.img, siis)
-    fft_lr_imgs = stack(map(img -> fft(img), imgs))
-
-    local C, x, y, i, j
-    @tullio C[x, y, i] := M_inv[i, j] * fft_lr_imgs[y, x, j]
-
-    return map(zip(eachslice(C, dims=ndims(C)), siis, (0, +1, -1))) do (component, sii, shift_ind)
-        # FIX: This is not right, we want to give the shift for a particular size not for making the size 2×... <05-12-23> 
-        ShiftedComponent(component, shift_ind .* δ(sii.illumination_pattern, size(sii.img) .* 2), sii.Δxy)
-    end |> splat(tuple)
-end
+# function separate_components(siis::NTuple{3,IlluminatedImage{T,N,Harmonic{N}}}) where {T,N}
+#     θs = map(sii -> sii.illumination_pattern.pattern.θ, siis)
+#     allequal(θs) || ArgumentError("All images must have the same orientation. Given orientations $(θs).")
+#
+#     ϕs = map(sii -> sii.illumination_pattern.pattern.ϕ, siis)
+#     ms = map(sii -> sii.illumination_pattern.pattern.m, siis)
+#     M_inv = separation_matrix(T, ϕs, ms)
+#
+#     # NOTE: FFTW doesn't know how to work with Gray types <30-11-23> 
+#     imgs = map(sii -> eltype(sii.img) isa AbstractGray ? gray.(sii.img) : sii.img, siis)
+#     fft_lr_imgs = stack(map(img -> fft(img), imgs))
+#
+#     local C, x, y, i, j
+#     @tullio C[x, y, i] := M_inv[i, j] * fft_lr_imgs[y, x, j]
+#
+#     return map(zip(eachslice(C, dims=ndims(C)), siis, (0, +1, -1))) do (component, sii, shift_ind)
+#         # FIX: This is not right, we want to give the shift for a particular size not for making the size 2×... <05-12-23> 
+#         ShiftedComponent(component, shift_ind .* δ(sii.illumination_pattern, size(sii.img) .* 2), sii.Δxy)
+#     end |> splat(tuple)
+# end
 
 # TODO: Test <12-12-23> 
 # NOTE: Taken from Distributions.jl <kunzaatko> 
