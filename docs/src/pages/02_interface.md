@@ -6,7 +6,6 @@ CurrentModule = SIMIlluminationPatterns
 
 ```@docs
 IlluminationPattern
-IP
 ```
 
 ```@docs
