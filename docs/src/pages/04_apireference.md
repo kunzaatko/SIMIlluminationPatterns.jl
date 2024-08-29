@@ -4,7 +4,7 @@ Order = [:type, :function]
 ```
 
 ```@meta
-CurrentModule = "SIMIlluminationPatterns"
+CurrentModule = SIMIlluminationPatterns
 ```
 ```@docs
 separation_matrix
