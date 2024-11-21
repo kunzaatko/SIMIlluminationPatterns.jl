@@ -25,4 +25,7 @@ include("illumination-pattern-api.jl")
 include("harmonic.jl")
 include("harmonic-component-separation.jl")
 
+# synthetic data
+include("synthetic-data.jl")
+
 end
