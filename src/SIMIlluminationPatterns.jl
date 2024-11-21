@@ -19,10 +19,10 @@ using Tullio
 include("common.jl")
 
 # Helper API
-include("illumination_pattern_api.jl")
+include("illumination-pattern-api.jl")
 
 # specific illumination patterns
 include("harmonic.jl")
-include("harmonic_component_separation.jl")
+include("harmonic-component-separation.jl")
 
 end
