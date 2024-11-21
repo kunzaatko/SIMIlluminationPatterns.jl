@@ -24,13 +24,14 @@ makedocs(;
         "Theory" => "pages/01_theory.md",
         "General Interface" => "pages/02_interface.md",
         "Illumination Patterns" => [
-            "Harmonic" => "pages/03_patterns/01_harmonic.md"
-            "Nonlinear SIM" => "pages/03_patterns/02_nonlinear_sim.md"
-            "Blind SIM" => "pages/03_patterns/03_blindsim.md"
+            "Harmonic" => "pages/03_patterns/01_harmonic.md",
+            "Nonlinear SIM" => "pages/03_patterns/02_nonlinear_sim.md",
+            "Blind SIM" => "pages/03_patterns/03_blindsim.md",
         ],
+        "Synthetic Data" => "pages/04_synthetic_data.md",
         "References" => [
-            "API" => "pages/04_apireference.md",
-            "Bibliography" => "pages/05_bibliography.md"
+            "API" => "pages/05_apireference.md",
+            "Bibliography" => "pages/06_bibliography.md",
         ]
     ],
     plugins=[bib],
