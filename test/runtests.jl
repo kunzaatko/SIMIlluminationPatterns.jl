@@ -17,7 +17,7 @@ end
         @testset "Code quality (Aqua.jl)" begin
             Aqua.test_all(
                 SIMIlluminationPatterns;
-                ambiguities=(; exclude=VERSION >= v"1.11" ? [checkindex, checkbounds] : [])
+                ambiguities=false
             )
         end
     else
@@ -30,6 +30,9 @@ end
             DocMeta.setdocmeta!(SIMIlluminationPatterns, :DocTestSetup, :(using SIMIlluminationPatterns); recursive=true)
             doctest(SIMIlluminationPatterns)
         end
+    end
+    @testset "Ambiguities" begin
+        @test length(Test.detect_ambiguities(SIMIlluminationPatterns)) == 0
     end
     @testset "Harmonic" begin
         Δxy = 61u"nm"
