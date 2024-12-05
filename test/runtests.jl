@@ -23,7 +23,7 @@ end
     else
         @info "Skipping Aqua.jl quality tests. For a full run set `ENV[\"RUNTESTS_FULL\"]=true`."
     end
-    # NOTE: Show for `Unitful` does nm⁻¹ on macOS and nm^-1 on Linux. This is necessary, since the `jldoctest` is only one
+    # NOTE: Show for `Unitful.jl` does nm⁻¹ on macOS and nm^-1 on Linux. This is necessary, since the `jldoctest` is only one
     if !haskey(ENV, "GITHUB_ACTIONS") || haskey(ENV, "RUNNER_OS") && ENV["RUNNER_OS"] == "Linux"
         @testset "DocTests" begin
             # NOTE: Better than doc-testing in `make.jl` because, I can track the coverage
@@ -41,7 +41,7 @@ end
             @testset "Primary constructor checks" begin
                 @test_throws DomainError Harmonic(-0.1, θ, ν, ϕ)
                 # TODO: Make a test that checks that the function `@warn`s <11-12-23> 
-                @test @no_error Harmonic(2.1, θ, ν, ϕ) # should only warn
+                @test Harmonic(2.1, θ, ν, ϕ) isa IlluminationPattern # should only warn
                 @test_throws DomainError Harmonic(m, -3π / 2, ν, ϕ)
                 @test_throws DomainError Harmonic(m, 3π / 2, ν, ϕ)
                 @test_throws DomainError Harmonic(m, θ, ν, -0.1)
@@ -60,9 +60,28 @@ end
                 end
             end
             @testset "Component Separation" begin
-                using SIMIlluminationPatterns: separation_matrix
+                # @testset "utils.jl" begin
                 using LinearAlgebra
-                @test separation_matrix((1, 2, 3), (2, 2, 2)) * transpose([1 1 1; exp(im) exp(2im) exp(3im); exp(-im) exp(-2im) exp(-3im)]) ≈ I(3)
+                using SIMIlluminationPatterns: mixin_matrix, separation_matrix, mixin_components, separate_components
+                @test mixin_matrix((0.5, 0.8, 1.0)) isa Matrix{<:Complex}
+                @test mixin_matrix(0.0, 3) == mixin_matrix((0.0, 2π / 3, 4π / 3))
+                @test mixin_matrix(0.5, 5) == mixin_matrix(0.5, (1, 1, 1, 1, 1))
+
+                @test separation_matrix(0.0, 3) isa Matrix{<:Complex}
+                @test separation_matrix((0.5, 0.8, 1.0)) isa Matrix{<:Complex}
+                @test separation_matrix((0.5, 0.8, 1.0), (0.3, 0.4, 0.2)) isa Matrix{<:Complex}
+                @test_broken separation_matrix(0.5, (1, 1, 1, 1, 1)) isa Matrix{<:Complex}
+
+                M = mixin_matrix(0.0, 3)
+                M_inv = separation_matrix(0.0, 3)
+                comps = randn(10, 10, 3, 1)
+                @test mixin_components(comps[:, :, :], M) isa Array{<:Complex,4}
+                @test mixin_components(comps, M) == mixin_components(comps[:, :, :], M)
+                raw = mixin_components(comps, M)
+                @test separate_components(raw, M_inv) == separate_components(raw[:, :, :], M_inv)
+                @test comps ≈ separate_components(raw, M_inv)
+
+                @test separation_matrix((1.0, 2.0, 3.0), (2.0, 2.0, 2.0)) * transpose([1 1 1; exp(im) exp(2im) exp(3im); exp(-im) exp(-2im) exp(-3im)]) ≈ I(3)
             end
         end
 

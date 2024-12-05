@@ -15,6 +15,8 @@ using Tullio
 
 ### source files
 
+include("utils.jl")
+
 # type system
 include("common.jl")
 

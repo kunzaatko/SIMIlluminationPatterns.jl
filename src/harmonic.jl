@@ -97,6 +97,7 @@ function (h::Harmonic{2})(x::Length, y::Length)
 end
 
 δ(h::Harmonic{N}) where {N} = cossin(h.θ) .* h.ν
+# FIX: What does `size` represent? If it is the size of the image in pixels, it should only take Integer values. <25-11-24> 
 δ(hr::IPR{T,N,Harmonic{N}}, size::NTuple{N,Real}) where {T,N} = hr.Δxy .* δ(hr.pattern) .* size
 
 # CHECK: This gives the shift δ that is determined by the size of the image... Is this correct? <05-12-23> 

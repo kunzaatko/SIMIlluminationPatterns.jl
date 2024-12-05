@@ -13,8 +13,10 @@ const PerLength = Quantity{<:Any,inv(𝐋)}
 
 struct GroundTruth{T<:Real,N}
     img::GenericGrayImage{T,N}
+    # FIX: Is this necessary? When we would be creating a synthetic image from something like Lena, we do not need to define the pixel size <27-11-24> 
     Δxy::NTuple{N,Length}
 end
+GroundTruth(img::GenericGrayImage{T,N}, Δxy::Length) where {T,N} = GroundTruth(img::GenericGrayImage{T,N}, ntuple(_ -> Δxy, Val(N)))
 
 # NOTE: Function should be able to generate a `Sampleable` from the intensity of a pixel or the position of the pixel
 # within the image <18-11-24> 
