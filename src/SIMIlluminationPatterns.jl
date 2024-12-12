@@ -6,7 +6,7 @@ module SIMIlluminationPatterns
 using Reexport
 @reexport using Unitful
 using Unitful: Length
-@derived_dimension Frequency Unitful.𝐋^-1
+@derived_dimension Frequency Unitful.𝐋^-1 true
 
 using TransferFunctions
 using FFTW
