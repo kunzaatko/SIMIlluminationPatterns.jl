@@ -21,13 +21,14 @@ include("utils.jl")
 include("common.jl")
 
 # Helper API
-include("illumination-pattern-api.jl")
+include("sampled-illumination-pattern.jl")
 
 # specific illumination patterns
 include("harmonic.jl")
 include("harmonic-component-separation.jl")
 
 # synthetic data
-include("synthetic-data.jl")
+include("synthetic-data/synthetic-data.jl")
 
+export SampledIlluminationPattern, Synthetic
 end

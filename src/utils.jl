@@ -1,9 +1,18 @@
 # TODO: This should be in the SIMIlluminations package <18-11-24> 
-using Interpolations: InterpolationType, BoundaryCondition
+using Interpolations: InterpolationType, BoundaryCondition, interpolate, extrapolate
 using Tullio
 
-abstract type ShiftAlgorithm end
-struct InterpolateExtrapolate <: ShiftAlgorithm
+@doc """
+    TranslationAlgorithm
+
+The abstract type for algorimthms for translating an array
+
+# subtypes:
+    - [`InterpolateExtrapolate`](@ref)
+    - [`Fourier`](@ref)
+"""
+abstract type TranslationAlgorithm end
+struct InterpolateExtrapolate <: TranslationAlgorithm
     intp::InterpolationType
     extp::Union{BoundaryCondition,Number}
     # Default values? Or defaults only for specific types?
@@ -13,11 +22,11 @@ end
 
 # FIX: Why do we need `shifted` and what does it mean for the setup? (It is needed for component shifting, but not for
 # the OTF, shifting) <10-12-23> 
-struct FourierShiftTheorem <: ShiftAlgorithm
+struct Fourier <: TranslationAlgorithm
     domain::Union{Val{:fourier},Val{:spatial}}
     shifted::Bool
 end
-FourierShiftTheorem(dom::Symbol, args...) = dom ∈ (:fourier, :spatial) ? FourierShiftTheorem(Val(dom), args...) : throw(ArgumentError("domain must be ∈ (:fourier, :spatial). Got \'$dom\'"))
+Fourier(dom::Symbol, args...) = dom ∈ (:fourier, :spatial) ? Fourier(Val(dom), args...) : throw(ArgumentError("domain must be ∈ (:fourier, :spatial). Got \'$dom\'"))
 
 # TODO: Test <10-12-23> 
 # FIX: This function should be possible to use for MeasuredPSF shifting <10-12-23> 
@@ -41,7 +50,7 @@ function shift(
 end
 
 function shift(
-    alg::FourierShiftTheorem,
+    alg::Fourier,
     A::AbstractMatrix,
     Δ::NTuple{2,<:Real}
 )

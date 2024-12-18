@@ -144,7 +144,7 @@ separate_components(f_imgs::AbstractArray{<:Number,3}, separation_args...) = sep
 separate_components(f_imgs::AbstractArray{<:Number,4}, separation_args...) = separate_components(f_imgs, separation_matrix(separation_args...))
 
 
-function shift_component(sc::SeparatedComponent{TC,N}, s_ip::IlluminationPatternRealization{TP,N,IP}) where {TC,TP,N,IP}
+function shift_component(sc::SeparatedComponent{TC,N}, s_ip::SampledIlluminationPattern{TP,N,IP}) where {TC,TP,N,IP}
     Δ = sc.shift_direction .* δ(s_ip, size(sc))
     if all(iszero.(Δ)) # Zero index component
         return ShiftedComponent(sc.component, Δ)
@@ -155,7 +155,7 @@ function shift_component(sc::SeparatedComponent{TC,N}, s_ip::IlluminationPattern
     # FIX: A problem with the offset getting lost. It should be possible to restore the offset.. This should be done by
     # specializing the shift function for the OffsetArray method. <25-11-24> 
     @show typeof(comp_padded), comp_padded.offsets
-    shifted_comp = shift(FourierShiftTheorem(:fourier, true), fftshift(comp_padded), Δ) |> ifftshift
+    shifted_comp = shift(Fourier(:fourier, true), fftshift(comp_padded), Δ) |> ifftshift
     return ShiftedComponent(shifted_comp, Δ)
 end
 

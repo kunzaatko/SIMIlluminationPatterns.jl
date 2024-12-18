@@ -1,7 +1,13 @@
 using SIMIlluminationPatterns
 using Documenter, DocumenterCitations
 
-DocMeta.setdocmeta!(SIMIlluminationPatterns, :DocTestSetup, :(using SIMIlluminationPatterns); recursive=true)
+# NOTE: When updating, must update also in `test/runtests.jl` <18-12-24> 
+DocMeta.setdocmeta!(SIMIlluminationPatterns, :DocTestSetup, :(
+        using SIMIlluminationPatterns;
+        using SIMIlluminationPatterns.Synthetic;
+        using Distributions;
+        using TestImages
+    ); recursive=true)
 
 bib = CitationBibliography(
     joinpath(@__DIR__, "src", "refs.bib");

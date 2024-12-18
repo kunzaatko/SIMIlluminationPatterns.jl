@@ -1,65 +1,179 @@
+@doc """
+Serves to generate synthetic SIM data from a ground truth image.
+
+The model of synthetic data generation is characterised by
+    a list of [`ModelComponent`](@ref)s which can be for instance:
+- **Noise** -- black current noise, background noise, photon shot noise (additive
+    / multiplicative / etc. data dependent / independent)
+- **Downsampling** -- downsampling the data so that the reconstruction could have the same size
+    as the [`GroundTruth`](@ref) ([`DownSample`](@ref))
+- **Illumination** -- illumination of the focal plane / sample volume
+- **Optical transfer** -- transfer of the light through the optical system
+"""
 module Synthetic
-using OffsetArrays, TransferFunctions
-using ImageFiltering
-using TransferFunctions: TransferFunction
-using SIMIlluminationPatterns: GenericGrayImage, Length, IlluminationPattern, IlluminationPatternRealization
+using OffsetArrays, TransferFunctions, ImageFiltering, FFTW
+using ImageFiltering: mapwindow
+using TransferFunctions: TransferFunction, NotImplementedError
+using SIMIlluminationPatterns: GenericGrayImage, Length, IlluminationPattern, SampledIlluminationPattern
 using Unitful: Quantity, 𝐋, Length
-using Distributions: Normal, Uniform, Sampleable, mean
-using FFTW
+using Distributions: Normal, Uniform, mean, Poisson, Distribution
 
 const PerLength = Quantity{<:Any,inv(𝐋)}
 
-# TODO: Never mind this, I will finish it later <18-11-24> 
+"""
+    Synthetic.GroundTruthGenerator
+A struct that generates a ground truth synthetic image based on stored latent variables.
 
-struct GroundTruth{T<:Real,N}
-    img::GenericGrayImage{T,N}
-    # FIX: Is this necessary? When we would be creating a synthetic image from something like Lena, we do not need to define the pixel size <27-11-24> 
-    Δxy::NTuple{N,Length}
-end
-GroundTruth(img::GenericGrayImage{T,N}, Δxy::Length) where {T,N} = GroundTruth(img::GenericGrayImage{T,N}, ntuple(_ -> Δxy, Val(N)))
+# Implementation
+Any type that implements this interface must define:
+- `generate(gtg::GroundTruthGenerator)` -- generate the ground truth image
+"""
+abstract type GroundTruthGenerator end
 
-# NOTE: Function should be able to generate a `Sampleable` from the intensity of a pixel or the position of the pixel
-# within the image <18-11-24> 
-const NoiseGenerator = Union{Function,Sampleable}
+"""
+    Synthetic.ModelComponent
+A struct that represents a component of the model of synthetic data generation.
 
-abstract type NoiseComponent end
-struct NoiseSampleable{S<:Sampleable} <: NoiseComponent
-    sampleable::S
-end
-function apply(i::GenericGrayImage, nc::NoiseSampleable{S}) where {S<:Sampleable}
-    noisy = i.img .+ rand(nc.sampleable, size(i.img))
-    return noisy
-end
+# Implementation
+Any type `A <: ModelComponent` that implements this interface must define:
+- `apply(c::A, data; <keyword arguments>)` or `apply(c:A, data, ground_truth; <keyword arguments>)` -- transform `data` optionally depending on the `ground_truth`.
+"""
+abstract type ModelComponent end
+apply(mc::ModelComponent, data, ground_truth; kwargs...) = apply(mc, data; kwargs...)
 
-# apply(img::GenericGrayImage, nc::NoiseComponent) = apply!(copy(img), nc)
-# struct NoiseComponent
-#     # TODO:  <18-11-24> 
-# end
+struct SyntheticDataModel
+    components::Vector{<:ModelComponent}
 
-apply
-
-const ModelComponents{N} = Union{IlluminationPattern{N},TransferFunction{N},NoiseComponent}
-
-function apply(img::GroundTruth, model::ModelComponents)
-    apply(img, model)
+    function SyntheticDataModel(components::Vector)
+        @assert !isempty(components) "The number of components in the chain must be atleast 1"
+        return new(components)
+    end
 end
 
-function simulate(img::GroundTruth, model::Vector{ModelComponents})
-    map(n -> apply(img, model[0:n]), 0:length(model))
+# `params` - either latent variables that are used to generate the ground truth image or a 
+function (chain::SyntheticDataModel)(ground_truth)
+    # NOTE: Constructor guarantees that chain is non empty <14-12-24> 
+    data = apply(chain.components[1], copy(ground_truth), ground_truth)
+    for comp in chain.components[2:end]
+        data = apply(comp, data, ground_truth)
+    end
+    return data
+end
+
+# TODO: Could be a generic method resample <18-12-24> 
+"""
+    Synthetic.DownSampling <: Synthetic.ModelComponent
+Reduce the sampling of the data by a factor of `ratio` with the reduce function `reduce`
+
+Fields: `ratio::Int`, `reduce::Function`
+
+# Examples
+```jldoctest
+julia> ds = DownSampling(3)
+DownSampling(3, mean)
+
+julia> ds = DownSampling()
+DownSampling(2, mean)
+
+julia> ds = DownSampling(reduce=maximum)
+DownSampling(2, maximum)
+```
+"""
+Base.@kwdef struct DownSampling <: ModelComponent
+    ratio::Int = 2
+    reduce::Function = mean
+end
+DownSampling(ratio::Int) = DownSampling(ratio=ratio)
+
+raw"""
+    apply(ds::DownSampling, data)
+
+# Examples
+```jldoctest; filter = r"\s*Downloading artifact:.*\n" => s""
+julia> img = testimage("moonsurface.tiff");
+
+julia> ds = DownSampling(2);
+
+julia> size(img)
+(256, 256)
+
+julia> img = apply(ds, img);
+
+julia> size(img)
+(128, 128)
+```
+"""
+function apply(ds::DownSampling, data::AbstractArray)
+    indices = NTuple(map(axes(data)) do ax
+        ax[1]:ds.ratio:ax[end]
+    end
+    )
+    data = mapwindow(ds.reduce, data, fill(0:(ds.ratio-1), ndims(data)), border=Inner(), indices=indices)
+    return data
+end
+apply(ds::DownSampling, datas::Vector{<:AbstractArray}) = map(data -> apply(ds, data), datas)
+
+struct PhotonShotNoise <: ModelComponent
+    α::Real
+end
+function apply(psn::PhotonShotNoise, data, ground_truth)
+    data = map(data, ground_truth) do d, gt
+        d + rand(Poisson(gt * psn.α))
+    end
+    return data
+end
+
+"""
+    AdditiveNoise{D<:Distribution} <: ModelComponent
+Additive noise component of the synthetic data model.
+
+# Examples
+```jldoctest
+julia> noise = AdditiveNoise(Normal(0, 0.1))
+AdditiveNoise(Normal{Float64}(μ=0.0, σ=0.1))
+```
+"""
+struct AdditiveNoise{D<:Distribution} <: ModelComponent
+    dist::D
+end
+function Base.show(io::IO, ::MIME"text/plain", an::AdditiveNoise)
+    print(io, "AdditiveNoise(")
+    show(io, MIME("text/plain"), an.dist)
+    print(io, ")")
+end
+
+raw"""
+    apply(noise::AdditiveNoise, data)
+Add noise to data from `noise.dist`
+
+# Examples
+```jldoctest; filter = r"\s*Downloading artifact:.*\n" => s""
+julia> img = testimage("moonsurface.tiff");
+
+julia> noise = AdditiveNoise(Normal(0.0, 0.1));
+
+julia> img_δ = apply(noise, img);
+```
+"""
+function apply(an::AdditiveNoise, data)
+    data = data .+ rand(an.dist, size(data))
+    return data
+end
+
+struct Illumination{IlluminationPattern}
+
 end
 
 """
     bead([T=Float64], d::Length, α::PerLength, (Δxy::Length,Δxy::Length))
     bead(d, α, Δxy::Length)
-
 Generate a model of a bead with diameter `d` and pixelsizes `Δxy`.
 
-## Arguments
+# Arguments
 - `α::PerLength`: evanescent wave attenuation constant
 - `pixel_grid_length::Int = 10`: length of each pixel in the grid
 - `peak_intensity = 1.0`: peak intensity value
 -  `subpixel_shift =(0, 0)`
-
 """
 function bead(T::Type{<:Real}, d::Length, α::PerLength, Δxy::NTuple{2,Length}; pixel_grid_length=10, peak_intensity=one(T), subpixel_shift=(0, 0))::OffsetMatrix{T}
     half_wh_px = d ./ (2 .* Δxy) .+ 1 .|> ceil # ½ width-height in pixels +1 for sub-pixel shift
@@ -93,14 +207,10 @@ bead(T::Type{<:Real}, d::Length, α::PerLength, Δxy::Length; vargs...) = bead(T
 bead(d::Length, α::PerLength, Δxy; vargs...) = bead(Float64, d, α, Δxy; vargs...)
 
 """
-    beads(T::Type{<:Number}=Float64; kwargs...)
-
+    beads(T=Float64; <keyword arguments>)
 Generate a synthetic microscopy image of fluorescent beads with realistic optical properties.
 
 # Arguments
-- `T::Type{<:Number}=Float64`: The numeric type for the output image array
-
-# Keyword Arguments
 - `image_size::Tuple{Int,Int}=(1024, 1024)`: Size of the output image in pixels
 - `N::Int=1000`: Number of beads to generate
 - `pxsize::Tuple{Quantity,Quantity}=(30.5u"nm", 30.5u"nm")`: Pixel size in physical units
@@ -113,14 +223,10 @@ function beads()
 end
 
 """
-    synthetic_beads_image(T::Type{<:Number}=Float64; kwargs...)
-
-Generate a synthetic microscopy image of fluorescent beads with realistic optical properties.
+    synthetic_beads_image(T=Float64; <keyword arguments>)
+Generate a synthetic microscopy image `Matrix{T}` of fluorescent beads with realistic optical properties.
 
 # Arguments
-- `T::Type{<:Number}=Float64`: The numeric type for the output image array
-
-# Keyword Arguments
 - `image_size::Tuple{Int,Int}=(1024, 1024)`: Size of the output image in pixels
 - `N::Int=1000`: Number of beads to generate
 - `pxsize::Tuple{Quantity,Quantity}=(30.5u"nm", 30.5u"nm")`: Pixel size in physical units
@@ -130,12 +236,9 @@ Generate a synthetic microscopy image of fluorescent beads with realistic optica
 - `noise_model::Distribution=Normal{Float32}(2.0503677f-12, 4*0.005893613f0)`: Statistical model for image noise
 - `optical_transfer_function=IdealOTFwithCurvature(488u"nm", 1.4, 1.0, 0.9)`: Optical transfer function for microscope simulation
 
-# Returns
-A 2D array of type `T` containing the synthetic image with values clamped between 0 and the maximum intensity.
-
-# Description
-This function generates a synthetic microscopy image of fluorescent beads, simulating:
-1. Random placement of beads with minimum separation distance
+# Extended help
+Generates a synthetic microscopy image of fluorescent beads, simulating:
+1. Random placement of beads with minimum separation distance (`min_distance`)
 2. Evanescent field illumination
 3. Realistic noise
 4. Optical transfer function effects
@@ -145,7 +248,7 @@ intensity is modulated by the evanescent field decay. The image is then convolve
 the specified optical transfer function and noise is added according to the provided 
 noise model.
 
-# Example
+# Examples
 ```julia
 # Generate a synthetic image with default parameters
 img = synthetic_beads_image()
@@ -199,7 +302,7 @@ function synthetic_beads_image(
 
     # TODO: Change to IlluminationPattern instead of IlluminationPatternRealization <18-11-24> 
     # Illuminating the image
-    @assert all(typeof(ip) <: Union{Nothing,IlluminationPatternRealization} for ip in illumination_patterns) "`illumination_patterns` must be `<:IlluminationPattern` or `nothing`"
+    @assert all(typeof(ip) <: Union{Nothing,SampledIlluminationPattern} for ip in illumination_patterns) "`illumination_patterns` must be `<:IlluminationPattern` or `nothing`"
     # TODO: Generalize for the size <18-11-24> 
     sampled_patterns = map(p -> p isa Nothing ? nothing : p(-2:1027, -2:1027), illumination_patterns)
     # TODO: This should be done in one go to avoid checking that it is a matrix... <18-11-24> 
@@ -223,4 +326,5 @@ function synthetic_beads_image(
     return [clamp.(buf, zero(T), maximum(buf))[1:image_size[1], 1:image_size[2]] for buf in bufs_padded], buf_gt
 end
 
+export SyntheticDataModel, DownSampling, AdditiveNoise, PhotonShotNoise, apply
 end

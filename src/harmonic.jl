@@ -98,10 +98,10 @@ end
 
 δ(h::Harmonic{N}) where {N} = cossin(h.θ) .* h.ν
 # FIX: What does `size` represent? If it is the size of the image in pixels, it should only take Integer values. <25-11-24> 
-δ(hr::IPR{T,N,Harmonic{N}}, size::NTuple{N,Real}) where {T,N} = hr.Δxy .* δ(hr.pattern) .* size
+δ(hr::SampledIP{T,N,Harmonic{N}}, size::NTuple{N,Real}) where {T,N} = hr.Δxy .* δ(hr.pattern) .* size
 
 # CHECK: This gives the shift δ that is determined by the size of the image... Is this correct? <05-12-23> 
-δ(hr::IPR{T,N,Harmonic{N}}, size::Real) where {T,N} = δ(hr, ntuple(_ -> size, Val(N)))
+δ(hr::SampledIP{T,N,Harmonic{N}}, size::Real) where {T,N} = δ(hr, ntuple(_ -> size, Val(N)))
 
 # TODO: Abstract to multiple dimensions <30-10-23> 
 # function (h::Harmonic{N})(v::Vararg{Length,N}) where {N}
@@ -109,16 +109,10 @@ end
 #     return 1 + m / 2 * cos(2π * sum(sincos(θ) .* h.ν .* (y, x)) + ϕ)
 # end
 
-# TODO: Realizations of the Harmonic can be separate types created by supplying a pixel-size 
-# (h::Harmonic)(Δxy)[1:400, 5:10], this type could implement abstract array interface. This could be done similarly with
-# TODO: This should not be subtyped but should store the original type and should be monomorphized when sampled. This 
-# would ensure that when there is a change in the attributes that it is still the most accurate representation <12-10-23> 
-# the transfer functions <12-10-23> 
-
 # TODO: Print the parameters that the Harmonic was created with with show. This would be done by storing them in the
 # type itself <12-10-23> 
 function Base.show(io::IO, ::MIME"text/plain", h::Harmonic{N}) where {N}
-    print(io, "Harmonic$(N)D(", "m=", h.m, ", θ=", h.θ, ", ν=", h.ν, ", ϕ=", h.ϕ, ")")
+  print(io, "Harmonic$(N)D(", "m=", round(h.m; sigdigits=3), ", θ=", round(h.θ; sigdigits=3), ", ν=", round(typeof(h.ν), h.ν; sigdigits=3), ", ϕ=", round(h.ϕ; sigdigits=3), ")")
 end
 
 export Harmonic, Harmonic2D, Harmonic3D

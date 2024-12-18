@@ -9,5 +9,5 @@ IlluminationPattern
 ```
 
 ```@docs
-IlluminationPatternRealization
+SampledIlluminationPattern
 ```

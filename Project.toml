@@ -1,7 +1,7 @@
 name = "SIMIlluminationPatterns"
 uuid = "e6514a50-921c-4af3-9933-d2ed4e901773"
 authors = ["Martin Kunz <martinkunz@email.cz> and contributors"]
-version = "0.2.0"
+version = "0.3.0"
 
 [deps]
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
