@@ -44,18 +44,22 @@ Base.setindex!(sc::ShiftedComponent, v, i::Integer) = (sc.component[i] = v)
 # TODO: Documentation <29-08-24> 
 function mixin_matrix(
     T::Type{<:Real},
-    ϕ::NTuple{N,<:Real},
-    μ::NTuple{N,<:Real}=ntuple(_ -> 1, Val(N))
-) where {N}
-    M = ones(Complex{T}, N, 3)
+    ϕ::Tuple{TP,Vararg{TP,N}},
+    μ::Tuple{TM,Vararg{TM,N}}=ntuple(_ -> 1, N + 1)
+) where {N,TP<:Real,TM<:Real}
+    M = ones(Complex{T}, N + 1, 3)
     M[:, 2] = collect(@. μ / 2 * exp(im * ϕ))
     M[:, 3] = collect(@. μ / 2 * exp(-im * ϕ))
 
     return M
 end
 # NOTE: There are unbound type parameters here, but it does not matter really <29-08-24> 
-mixin_matrix(ϕ::NTuple{N,TP}, μ::NTuple{N,TM}=ntuple(_ -> 1, Val(N))) where {N,TP<:Real,TM<:Real} = mixin_matrix(promote_type(TP, TM), ϕ, μ)
-mixin_matrix(ϕ_0::Real, μ::NTuple{N,T}) where {N,T<:Real} = mixin_matrix(ϕ_0 .+ Tuple(LinRange(0, 2π, N + 1)[begin:(end-1)]), μ)
+function mixin_matrix(ϕ::Tuple{TP,Vararg{TP,N}}, μ::Tuple{TM,Vararg{TM,N}}=ntuple(_ -> 1, N + 1)) where {N,TP<:Real,TM<:Real}
+    mixin_matrix(promote_type(TP, TM), ϕ, μ)
+end
+function mixin_matrix(ϕ_0::Real, μ::Tuple{T,Vararg{T,N}}) where {N,T<:Real}
+    mixin_matrix(ϕ_0 .+ Tuple(LinRange(0, 2π, N + 2)[begin:(end-1)]), μ)
+end
 mixin_matrix(ϕ_0::Real, N::Int) = mixin_matrix(ϕ_0, ntuple(_ -> 1, Val(N)))
 
 # FIX: The math should not appear in the documentation <25-11-24> 
