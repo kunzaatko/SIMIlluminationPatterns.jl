@@ -24,6 +24,9 @@ end
                 @info "Skipping Aqua.jl quality tests. For a full run set `ENV[\"RUNTESTS_FULL\"]=true`."
             end
         end
+        @testset "Ambiguities" begin
+            @test length(Test.detect_ambiguities(SIMIlluminationPatterns)) == 0
+        end
     end
     @testset "DocTests" begin
         # NOTE: Show for `Unitful.jl` does nm⁻¹ on macOS and nm^-1 on Linux. This is necessary, since the `jldoctest` is only one
