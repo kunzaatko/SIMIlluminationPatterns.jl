@@ -61,14 +61,14 @@ function (chain::SyntheticDataModel)(ground_truth)
 end
 
 # TODO: Could be a generic method resample <18-12-24> 
-"""
+raw"""
     Synthetic.DownSampling <: Synthetic.ModelComponent
 Reduce the sampling of the data by a factor of `ratio` with the reduce function `reduce`
 
 Fields: `ratio::Int`, `reduce::Function`
 
 # Examples
-```jldoctest
+```jldoctest; setup = :(using Statistics: mean)
 julia> ds = DownSampling(3)
 DownSampling(3, mean)
 
