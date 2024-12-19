@@ -41,7 +41,7 @@ end
                     using Distributions;
                     using TestImages
                 ); recursive=true)
-            doctest(SIMIlluminationPatterns.SIMIlluminationPatterns)
+            doctest(SIMIlluminationPatterns)
         end
     end
     @testset "SampledIlluminationPattern" begin

@@ -1,8 +1,11 @@
 using SIMIlluminationPatterns
 using Documenter, DocumenterCitations, DocumenterInterLinks
 
+# TODO: Add links to projects that I want to refer to <19-12-24> 
+# NOTE: Links can be explored trough the REPL with `links(query)`
 links = InterLinks(
-    "Unitful" => "https://painterqubits.github.io/Unitful.jl/stable/"
+    "Unitful" => "https://painterqubits.github.io/Unitful.jl/stable/",
+    "TransferFunctions" => "https://kunzaatko.github.io/TransferFunctions.jl/stable/"
 )
 
 # NOTE: When updating, must update also in `test/runtests.jl` <18-12-24> 
@@ -10,6 +13,7 @@ DocMeta.setdocmeta!(SIMIlluminationPatterns, :DocTestSetup, :(
         using SIMIlluminationPatterns;
         using SIMIlluminationPatterns.Synthetic;
         using Distributions;
+        using TransferFunctions;
         using TestImages
     ); recursive=true)
 

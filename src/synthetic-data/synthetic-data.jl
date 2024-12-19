@@ -1,3 +1,4 @@
+# TODO: Add links to the docstring to the relevant ModelComponents in sections <19-12-24> 
 @doc """
 Serves to generate synthetic SIM data from a ground truth image.
 
@@ -11,9 +12,9 @@ The model of synthetic data generation is characterised by
 - **Optical transfer** -- transfer of the light through the optical system
 """
 module Synthetic
-using OffsetArrays, TransferFunctions, ImageFiltering, FFTW
+using OffsetArrays, TransferFunctions, ImageFiltering, FFTW, ColorTypes
 using ImageFiltering: mapwindow
-using TransferFunctions: TransferFunction, NotImplementedError
+using TransferFunctions: TransferFunction, NotImplementedError, SampledTransferFunction
 using SIMIlluminationPatterns: GenericGrayImage, Length, IlluminationPattern, SampledIlluminationPattern
 using Unitful: Quantity, 𝐋, Length
 using Distributions: Normal, Uniform, mean, Poisson, Distribution
@@ -86,7 +87,7 @@ end
 DownSampling(ratio::Int) = DownSampling(ratio=ratio)
 Base.show(io::IO, ::MIME"text/plain", ds::DownSampling) = print(io, "DownSampling(", ds.ratio, ") with reduce `", nameof(ds.reduce), "`")
 
-raw"""
+@doc raw"""
     apply(ds::DownSampling, data)
 
 # Examples
@@ -98,9 +99,9 @@ julia> ds = DownSampling(2);
 julia> size(img)
 (256, 256)
 
-julia> img = apply(ds, img);
+julia> img_ds = apply(ds, img);
 
-julia> size(img)
+julia> size(img_ds)
 (128, 128)
 ```
 """
@@ -114,12 +115,38 @@ function apply(ds::DownSampling, data::AbstractArray)
 end
 apply(ds::DownSampling, datas::Vector{<:AbstractArray}) = map(data -> apply(ds, data), datas)
 
+# TODO: Document the mathematical formula of the noise <19-12-24> 
+"""
+    PhotonShotNoise <: ModelComponent
+Add Poisson noise simulating the photon shot noise (inherent to the quantum nature of light) to the data
+
+See also [`AdditiveNoise`](@ref)
+
+# Examples
+```jldoctest
+julia> noise_ps = PhotonShotNoise(0.1)
+PhotonShotNoise(0.1)
+```
+"""
 struct PhotonShotNoise <: ModelComponent
   α::Real
 end
+@doc raw"""
+    apply(psn::PhotonShotNoise, data, ground_truth)
+Add Poisson noise to `data` where the ``λ`` parameter of the Poisson distribution is proportional to the `ground_truth` (see [`PhotonShotNoise`](@ref))
+
+# Examples
+```jldoctest; filter = r"\s*Downloading artifact:.*\n" => s""
+julia> data = ground_truth = testimage("moonsurface.tiff");
+
+julia> noise_ps = PhotonShotNoise(0.1);
+
+julia> apply(noise_ps, data, ground_truth);
+```
+"""
 function apply(psn::PhotonShotNoise, data, ground_truth)
   data = map(data, ground_truth) do d, gt
-    d + rand(Poisson(gt * psn.α))
+    d + rand(Poisson(gray(gt) * psn.α))
   end
   return data
 end
@@ -128,6 +155,7 @@ end
     AdditiveNoise{D<:Distribution} <: ModelComponent
 Additive noise component of the synthetic data model.
 
+See also [`PhotonShotNoise`](@ref)
 # Examples
 ```jldoctest
 julia> noise = AdditiveNoise(Normal(0, 0.1))
@@ -143,7 +171,7 @@ function Base.show(io::IO, ::MIME"text/plain", an::AdditiveNoise)
   print(io, ")")
 end
 
-raw"""
+@doc raw"""
     apply(noise::AdditiveNoise, data)
 Add noise to data from `noise.dist`
 
@@ -151,7 +179,7 @@ Add noise to data from `noise.dist`
 ```jldoctest; filter = r"\s*Downloading artifact:.*\n" => s""
 julia> img = testimage("moonsurface.tiff");
 
-julia> noise = AdditiveNoise(Normal(0.0, 0.1));
+julia> noise = AdditiveNoise(Normal(0, 0.1));
 
 julia> img_δ = apply(noise, img);
 ```

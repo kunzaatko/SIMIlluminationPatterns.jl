@@ -17,7 +17,9 @@ ModelComponent
 ### Noise 
 ```@docs
 GroundTruthGenerator
+
 AdditiveNoise
+apply(::AdditiveNoise, ::Any)
 ```
 <!-- TODO:  <21-11-24> -->
 ### Microscopy transfer
@@ -26,6 +28,7 @@ AdditiveNoise
 ## Other Model Components
 ```@docs
 DownSampling
+apply(::DownSampling, ::Any)
 ```
 
 ## Ground Truth Models
