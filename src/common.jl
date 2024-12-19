@@ -34,10 +34,6 @@ end
 abstract type IlluminationPattern{N} end
 const IP{N} = IlluminationPattern{N}
 
-# TODO: Add broadcastable? <28-11-23> 
-
-(ip::IP{N})(::Vararg{Length,N}) where {N} = error("Not Implemented!")
-
 # NOTE: Taken from Distributions.jl <kunzaatko> 
 for func in (:(==), :isequal, :isapprox)
     @eval function Base.$func(ip1::A, ip2::B; kwargs...) where {A<:IlluminationPattern,B<:IlluminationPattern}

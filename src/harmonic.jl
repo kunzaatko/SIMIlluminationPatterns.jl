@@ -3,7 +3,7 @@
 # TODO: Implement constructors <11-10-23> 
 # TODO: Check if all the methods that I want to include are included <11-10-23> 
 # TODO: Add `@ref` links to `Frequency` and `Length` <12-10-23> 
-@doc raw"""
+raw"""
 Harmonic (sinusoidal) illumination pattern in the form
 ```math
     I(\vec{r})=1+{\frac{m}{2}}\cos\left(2π⋅ (kₓ⋅(\vec{r})ₓ + k_y ⋅ (\vec{r})_y) + \phi\right)
@@ -23,7 +23,7 @@ Harmonic (sinusoidal) illumination pattern in the form
     Harmonic(m::Real, (δ_x, δ_y)::Tuple{Real, Real}, size::Union{Tuple{Real, Real}, Real}, ϕ::Real, (Δx, Δy)::Tuple{Length,Length})
 
 
-Parameters have types `Real`, `Frequency` or `Length` and denote:
+Parameters have types `Real`, [`Frequency`](@ref) or `Length` and denote:
 + `m`: modulation factor
 + `θ`: orientation angle (from the ``x``-axis) (`\theta`)
 + `ν`: frequency (`\nu`)
@@ -35,6 +35,32 @@ Parameters have types `Real`, `Frequency` or `Length` and denote:
 + `ϕ`: phase offset (`\phi`)
 + `Δxy` or `(Δx, Δy)`: ``x``-axis and ``y``-axis pixel sizes
 
+# Examples
+```jldoctest
+julia> h1 = Harmonic(1, π/2, 1/(2*61u"nm"), π/4)
+Harmonic2D(m=1.0, θ=1.57, ν=0.0082 nm^-1, ϕ=0.785)
+
+julia> h2 = Harmonic(1, (0u"nm^-1", 1/(2*61u"nm")), π/4);
+
+julia> h3 = Harmonic(1, (0, 1/2), π/4, 61u"nm");
+
+julia> h4 = Harmonic(1, (0, 1/4), π/4, (61u"nm", 30.5u"nm"));
+
+julia> h5 = Harmonic(1, π/2, 2*61u"nm", π/4);
+
+julia> h6 = Harmonic(1, (0u"nm", 2*61u"nm"), π/4);
+
+julia> # h7 = Harmonic(1, π/2, 2, π/4, 61u"nm") # FIX
+
+julia> # h8 = Harmonic(1, π/2, 2, π/4, (61u"nm", 61u"nm")) # FIX
+
+julia> h9 = Harmonic(1, (0, 256), (512, 512), π/4, 61u"nm");
+
+julia> h10 = Harmonic(1, (0, 128), (512, 512), π/4, (61u"nm", 30.5u"nm"));
+
+julia> h1 == h2 == h3 == h4 == h5 == h6 == h9 == h10
+true
+```
 """
 struct Harmonic{d} <: IP{d}
     "amplitude modulation"
@@ -77,7 +103,7 @@ Harmonic3D
 @inline cossin(θ::Real) = reverse(sincos(θ))
 θν(ν::Tuple{Frequency,Frequency}) = (atan(ν[2], ν[1]), hypot(ν...))
 θν(ν::Tuple{Real,Real}, Δxy::Union{Tuple{Length,Length},Length}) = θν(ν ./ Δxy)
-θν(λ::Tuple{Length,Length}) = (atan(λ[2], λ[1]), ν(prod(λ) / hypot(λ...)))
+θν(λ::Tuple{Length,Length}) = (atan(λ[2], λ[1]), ν(hypot(λ...)))
 ν(λ::Length) = 1 / λ
 θν(θ::Real, λ::Real, Δxy::Union{Tuple{Length,Length},Length}) = θν(λ .* cossin(θ) .* Δxy)
 θν(δ::Tuple{Real,Real}, size::Union{Tuple{Real,Real},Real}, Δxy::Union{Tuple{Length,Length},Length}) = θν(δ ./ (size .* Δxy))
