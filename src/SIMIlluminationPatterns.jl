@@ -8,7 +8,6 @@ using Reexport
 using Unitful: Length
 @derived_dimension Frequency Unitful.𝐋^-1 true
 
-using TransferFunctions
 using FFTW
 using ImageCore
 using Tullio

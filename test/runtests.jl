@@ -39,10 +39,12 @@ end
                     using SIMIlluminationPatterns;
                     using SIMIlluminationPatterns.Synthetic;
                     using Distributions;
-                    using TransferFunctions;
+                    using TransferFunctions: TransferFunctions;
                     using TestImages;
                     filenames = ["moonsurface.tiff"]; # NOTE: This is a fix for failing doctests since on download, there is a print-out <19-12-24> 
-                    testimage.(filenames; download_only=false)
+                    testimage.(filenames; download_only=false);
+                    using Logging; # NOTE: This does not need to be in the `make.jl` of docs. We want `@warn ` to function there <19-12-24> 
+                    Logging.disable_logging(Logging.Warn)
                 ); recursive=true)
             doctest(SIMIlluminationPatterns)
         end

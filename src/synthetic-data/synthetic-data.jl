@@ -12,7 +12,8 @@ The model of synthetic data generation is characterised by
 - **Optical transfer** -- transfer of the light through the optical system
 """
 module Synthetic
-using OffsetArrays, TransferFunctions, ImageFiltering, FFTW, ColorTypes
+using OffsetArrays, ImageFiltering, FFTW, ColorTypes, Unitful
+using TransferFunctions: TransferFunctions as TF
 using ImageFiltering: mapwindow
 using TransferFunctions: TransferFunction, NotImplementedError, SampledTransferFunction
 using SIMIlluminationPatterns: GenericGrayImage, Length, IlluminationPattern, SampledIlluminationPattern
@@ -42,6 +43,7 @@ Any type `A <: ModelComponent` that implements this interface must define:
 abstract type ModelComponent end
 apply(mc::ModelComponent, data, ground_truth; kwargs...) = apply(mc, data; kwargs...)
 
+# FIX: This should be instead renamed to ForwardModel or something similar <19-12-24> 
 struct SyntheticDataModel
   components::Vector{<:ModelComponent}
 
@@ -236,6 +238,8 @@ Simulate light transfer through the optical system by via a transfer function ([
 
 # Examples
 ```jldoctest
+julia> using TransferFunctions: BornWolf, SampledPSF
+
 julia> bw = BornWolf(444u"nm", 1.4, 1.2);
 
 julia> sampled_bw = SampledPSF(bw, 61u"nm");
@@ -255,11 +259,20 @@ Simulate the light transfer by convolving with a transfer function `ot.transfer_
 
 # Examples
 ```jldoctest
+julia> using TransferFunctions: BornWolf, SampledPSF
 
+julia> bw = BornWolf(444u"nm", 1.4, 1.2);
 
+julia> sampled_bw = SampledPSF(bw, 61u"nm");
+
+julia> img = testimage("moonsurface.tiff");
+
+julia> ot = OpticalTransfer(sampled_bw);
+
+julia> apply(ot,img);
 ```
 """
-apply(ot::OpticalTransfer, data::AbstractArray) = TransferFunctions.apply(ot.transfer_function, data)
+apply(ot::OpticalTransfer, data::AbstractArray) = TF.apply(ot.transfer_function, data)
 
 """
     bead([T=Float64], d::Length, α::PerLength, (Δxy::Length,Δxy::Length))
