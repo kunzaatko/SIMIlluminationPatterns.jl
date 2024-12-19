@@ -6,7 +6,7 @@ The model of synthetic data generation is characterised by
 - **Noise** -- black current noise, background noise, photon shot noise (additive
     / multiplicative / etc. data dependent / independent)
 - **Downsampling** -- downsampling the data so that the reconstruction could have the same size
-    as the [`GroundTruth`](@ref) ([`DownSample`](@ref))
+    as the ground truth ([`DownSampling`](@ref))
 - **Illumination** -- illumination of the focal plane / sample volume
 - **Optical transfer** -- transfer of the light through the optical system
 """
