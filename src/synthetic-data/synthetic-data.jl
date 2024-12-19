@@ -189,8 +189,46 @@ function apply(an::AdditiveNoise, data)
   return data
 end
 
-struct Illumination{IlluminationPattern}
+"""
+    Illumination <: ModelComponent
+Illuminate the image with a sampled illumination pattern.
 
+# Examples
+```jldoctest
+julia> ip = Harmonic(1.0, π / 4, 2 / 61u"nm", 0.0);
+
+julia> sampled_ip = SampledIlluminationPattern(ip, 61u"nm");
+
+julia> ill = Illumination(sampled_ip)
+Illumination(Harmonic2D(m=1.0, θ=0.785, ν=0.0328 nm^-1, ϕ=0.0)(Δxy = 61 nm) with eltype Float64)
+```
+"""
+struct Illumination <: ModelComponent
+  pattern::SampledIlluminationPattern
+end
+function Base.show(io::IO, ::MIME"text/plain", ill::Illumination)
+  print(io, "Illumination(")
+  show(io, MIME("text/plain"), ill.pattern)
+  print(io, ")")
+end
+@doc raw"""
+    apply(ill::Illumination, data::AbstractArray)
+Illuminate the image `data` with the sampled illumination pattern `ill.pattern`.
+
+# Examples
+```jldoctest; filter = r"\s*Downloading artifact:.*\n" => s""
+julia> img = testimage("moonsurface.tiff");
+
+julia> ip = Harmonic(1.0, π / 4, 2 / 61u"nm", 0.0);
+
+julia> sampled_ip = SampledIlluminationPattern(ip, 61u"nm");
+
+julia> ill = Illumination(sampled_ip);
+
+julia> img_sim = apply(ill, img);
+```
+"""
+apply(ill::Illumination, data::AbstractArray) = data .* ill.pattern(data)
 end
 
 """

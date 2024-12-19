@@ -39,6 +39,7 @@ end
                     using SIMIlluminationPatterns;
                     using SIMIlluminationPatterns.Synthetic;
                     using Distributions;
+                    using TransferFunctions;
                     using TestImages
                 ); recursive=true)
             doctest(SIMIlluminationPatterns)
