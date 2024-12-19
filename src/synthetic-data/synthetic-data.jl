@@ -229,6 +229,23 @@ julia> img_sim = apply(ill, img);
 ```
 """
 apply(ill::Illumination, data::AbstractArray) = data .* ill.pattern(data)
+
+"""
+    OpticalTransfer <: `TransferFunction`
+Simulate optical transfer by convolving with a transfer function ([`SampledTransferFuction`](@exref))
+
+# Examples
+```jldoctest
+julia> bw = BornWolf(444u"nm", 1.4, 1.2);
+
+julia> sampled_bw = SampledPSF(bw, 61u"nm");
+
+julia> ot = OpticalTransfer(sampled_bw)
+OpticalTransfer(SampledPSF{2, BornWolf{Float64}}(BornWolf{Float64}(444.0 nm, 1.4, 1.2), (61 nm, 61 nm), (0, 0)))
+```
+"""
+struct OpticalTransfer <: ModelComponent
+  transfer_function::SampledTransferFunction
 end
 
 """
@@ -393,5 +410,6 @@ function synthetic_beads_image(
   return [clamp.(buf, zero(T), maximum(buf))[1:image_size[1], 1:image_size[2]] for buf in bufs_padded], buf_gt
 end
 
-export SyntheticDataModel, DownSampling, AdditiveNoise, PhotonShotNoise, apply
+export SyntheticDataModel, apply
+export DownSampling, AdditiveNoise, PhotonShotNoise, Illumination, OpticalTransfer
 end
