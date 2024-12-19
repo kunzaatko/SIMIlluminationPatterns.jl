@@ -26,7 +26,7 @@ Harmonic (sinusoidal) illumination pattern in the form
     Harmonic(m::Real, (δ_x, δ_y)::Tuple{Real, Real}, size::Union{Tuple{Real, Real}, Real}, ϕ::Real, (Δx, Δy)::Tuple{Length,Length})
 
 
-Parameters have types `Real`, [`Frequency`](@ref) or `Length` and denote:
+Parameters have types `Real`, [`Frequency`](@ref) or [`Length`](@ref) and denote:
 + `m`: modulation factor
 + `θ`: orientation angle (from the ``x``-axis) (`\theta`)
 + `ν`: frequency (`\nu`)

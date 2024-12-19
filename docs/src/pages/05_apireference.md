@@ -11,6 +11,7 @@ separation_matrix
 ```
 # Utils 
 ```@docs
+Length
 Frequency
 FrequencyUnits
 FrequencyFreeUnits
