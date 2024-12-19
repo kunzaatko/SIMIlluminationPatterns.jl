@@ -3,7 +3,10 @@
 # TODO: Implement constructors <11-10-23> 
 # TODO: Check if all the methods that I want to include are included <11-10-23> 
 # TODO: Add `@ref` links to `Frequency` and `Length` <12-10-23> 
-raw"""
+# TODO: Instead of testing every one of the constructors of `Harmonic` separately, I should define a set of the
+# parameters and compute the corresponding other parameters from them in a previous example. It would be more
+# explanatory for the user <19-12-24> 
+@doc raw"""
 Harmonic (sinusoidal) illumination pattern in the form
 ```math
     I(\vec{r})=1+{\frac{m}{2}}\cos\left(2π⋅ (kₓ⋅(\vec{r})ₓ + k_y ⋅ (\vec{r})_y) + \phi\right)

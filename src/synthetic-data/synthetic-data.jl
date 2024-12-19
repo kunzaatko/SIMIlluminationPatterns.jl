@@ -6,7 +6,7 @@ The model of synthetic data generation is characterised by
 - **Noise** -- black current noise, background noise, photon shot noise (additive
     / multiplicative / etc. data dependent / independent)
 - **Downsampling** -- downsampling the data so that the reconstruction could have the same size
-    as the ground truth ([`DownSampling`](@ref))
+    as the ground truth ([`DownSampling`](@ref Synthetic.DownSampling))
 - **Illumination** -- illumination of the focal plane / sample volume
 - **Optical transfer** -- transfer of the light through the optical system
 """
@@ -61,7 +61,7 @@ function (chain::SyntheticDataModel)(ground_truth)
 end
 
 # TODO: Could be a generic method resample <18-12-24> 
-raw"""
+@doc raw"""
     Synthetic.DownSampling <: Synthetic.ModelComponent
 Reduce the sampling of the data by a factor of `ratio` with the reduce function `reduce`
 

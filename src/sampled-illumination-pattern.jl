@@ -1,4 +1,4 @@
-raw"""
+@doc raw"""
     SampledIlluminationPattern{T<:Real,N,IP<:IlluminationPattern{N}}
     SampledIlluminationPattern([T=Float64], ip::IlluminationPattern, Δxy)
 `N`-dimensional sampled illumination pattern. You can fix the pixels sizes (`Δxy`) and sample the 
