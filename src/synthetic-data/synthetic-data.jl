@@ -70,13 +70,13 @@ Fields: `ratio::Int`, `reduce::Function`
 # Examples
 ```jldoctest; setup = :(using Statistics: mean)
 julia> ds = DownSampling(3)
-DownSampling(3, mean)
+DownSampling(3) with reduce `mean`
 
 julia> ds = DownSampling()
-DownSampling(2, mean)
+DownSampling(2) with reduce `mean`
 
 julia> ds = DownSampling(reduce=maximum)
-DownSampling(2, maximum)
+DownSampling(2) with reduce `maximum`
 ```
 """
 Base.@kwdef struct DownSampling <: ModelComponent
@@ -84,6 +84,7 @@ Base.@kwdef struct DownSampling <: ModelComponent
   reduce::Function = mean
 end
 DownSampling(ratio::Int) = DownSampling(ratio=ratio)
+Base.show(io::IO, ::MIME"text/plain", ds::DownSampling) = print(io, "DownSampling(", ds.ratio, ") with reduce `", nameof(ds.reduce), "`")
 
 raw"""
     apply(ds::DownSampling, data)
