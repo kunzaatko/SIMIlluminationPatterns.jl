@@ -66,23 +66,23 @@ true
 ```
 """
 struct Harmonic{d} <: IP{d}
-    "amplitude modulation"
-    m::Real
-    "orientation angle"
-    θ::Real
-    "frequency"
-    ν::Frequency
-    "phase offset"
-    ϕ::Real
+  "amplitude modulation"
+  m::Real
+  "orientation angle"
+  θ::Real
+  "frequency"
+  ν::Frequency
+  "phase offset"
+  ϕ::Real
 
-    function Harmonic{N}(m::Real, θ::Real, ν::Frequency, ϕ::Real) where {N}
-        # m <= 2one(m) || throw(DomainError(m, "amplitude modulation >2 would produce negative illumination intensities, which does not make sense"))
-        m <= 2one(m) || @warn "amplitude modulation >2 produces negative illumination intensities and should be avoided if possible"
-        m >= zero(m) || throw(DomainError(m, "amplitude modulation ∈(-1,0) is equivalent to shifting the phase offset by π (180°) and is not allowed"))
-        -π < θ <= π || throw(DomainError(θ, "use an orientation ∈(-π, π) (between -180° and 180°) (perhaps you should use: `mod(θ + π, 2π) - π`)"))
-        zero(ϕ) <= ϕ < 2π || throw(DomainError(ϕ, "use a phase offset ∈[0, 2π) (between 0° and 360°) (perhaps you should use: `mod(ϕ, 2π)`)"))
-        return new{N}(m, θ, ν, ϕ)
-    end
+  function Harmonic{N}(m::Real, θ::Real, ν::Frequency, ϕ::Real) where {N}
+    # m <= 2one(m) || throw(DomainError(m, "amplitude modulation >2 would produce negative illumination intensities, which does not make sense"))
+    m <= 2one(m) || @warn "amplitude modulation >2 produces negative illumination intensities and should be avoided if possible"
+    m >= zero(m) || throw(DomainError(m, "amplitude modulation ∈(-1,0) is equivalent to shifting the phase offset by π (180°) and is not allowed"))
+    -π < θ <= π || throw(DomainError(θ, "use an orientation ∈(-π, π) (between -180° and 180°) (perhaps you should use: `mod(θ + π, 2π) - π`)"))
+    zero(ϕ) <= ϕ < 2π || throw(DomainError(ϕ, "use a phase offset ∈[0, 2π) (between 0° and 360°) (perhaps you should use: `mod(ϕ, 2π)`)"))
+    return new{N}(m, θ, ν, ϕ)
+  end
 end
 
 const Harmonic2D = Harmonic{2}
@@ -120,9 +120,9 @@ Harmonic{N}(m::Real, θ::Real, λ::Real, ϕ::Real, Δxy::Union{Tuple{Length,Leng
 Harmonic{N}(m::Real, δ::Tuple{Real,Real}, size::Union{Tuple{Real,Real},Real}, ϕ::Real, Δxy::Union{Tuple{Length,Length},Length}) where {N} = Harmonic{N}(m, θν(δ, size, Δxy)..., ϕ)
 
 function (h::Harmonic{2})(x::Length, y::Length)
-    # TODO: Monomorphize the Length and Frequency <12-10-23> 
-    # m, θ, ϕ = promote(h.m, h.θ, h.ϕ)
-    return 1 + h.m / 2 * cos(2π * sum(cossin(h.θ) .* h.ν .* (x, y)) + h.ϕ)
+  # TODO: Monomorphize the Length and Frequency <12-10-23> 
+  # m, θ, ϕ = promote(h.m, h.θ, h.ϕ)
+  return 1 + h.m / 2 * cos(2π * sum(cossin(h.θ) .* h.ν .* (x, y)) + h.ϕ)
 end
 
 δ(h::Harmonic{N}) where {N} = cossin(h.θ) .* h.ν
