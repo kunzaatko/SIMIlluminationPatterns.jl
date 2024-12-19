@@ -1,5 +1,9 @@
 using SIMIlluminationPatterns
-using Documenter, DocumenterCitations
+using Documenter, DocumenterCitations, DocumenterInterLinks
+
+links = InterLinks(
+    "Unitful" => "https://painterqubits.github.io/Unitful.jl/stable/"
+)
 
 # NOTE: When updating, must update also in `test/runtests.jl` <18-12-24> 
 DocMeta.setdocmeta!(SIMIlluminationPatterns, :DocTestSetup, :(
@@ -40,7 +44,7 @@ makedocs(;
             "Bibliography" => "pages/06_bibliography.md",
         ]
     ],
-    plugins=[bib],
+    plugins=[bib, links],
     # NOTE: doctesting is done in the `runtests.jl` so it is not necessary to do here
     doctest=false
 )

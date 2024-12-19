@@ -8,10 +8,15 @@ using Tullio
 The abstract type for algorimthms for translating an array
 
 # subtypes:
-    - [`InterpolateExtrapolate`](@ref)
-    - [`Fourier`](@ref)
+- [`InterpolateExtrapolate`](@ref)
+- [`Fourier`](@ref)
 """
 abstract type TranslationAlgorithm end
+
+# TODO: Finish documentation <19-12-24> 
+"""
+    InterpolateExtrapolate <: TranslationAlgorithm
+"""
 struct InterpolateExtrapolate <: TranslationAlgorithm
     intp::InterpolationType
     extp::Union{BoundaryCondition,Number}
@@ -22,6 +27,9 @@ end
 
 # FIX: Why do we need `shifted` and what does it mean for the setup? (It is needed for component shifting, but not for
 # the OTF, shifting) <10-12-23> 
+"""
+    Fourier <: TranslationAlgorithm
+"""
 struct Fourier <: TranslationAlgorithm
     domain::Union{Val{:fourier},Val{:spatial}}
     shifted::Bool

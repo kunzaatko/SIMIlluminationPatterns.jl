@@ -10,10 +10,18 @@ CurrentModule = SIMIlluminationPatterns
 separation_matrix
 ```
 # Utils 
+
+## Band Separation
+
 ```@docs
-Length
+TranslationAlgorithm
+InterpolateExtrapolate
+Fourier
+```
+
+## [`Unitful.jl`](@extref :std:doc:`index`) Units
+```@docs
 Frequency
 FrequencyUnits
 FrequencyFreeUnits
-TranslationAlgorithm
 ```
