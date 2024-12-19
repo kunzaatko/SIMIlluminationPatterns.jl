@@ -11,6 +11,11 @@ Synthetic
 ## Components of the Model
 <!-- TODO:  <21-11-24> -->
 ### Noise 
+```@docs
+ModelComponent
+GroundTruthGenerator
+AdditiveNoise
+```
 <!-- TODO:  <21-11-24> -->
 ### Microscopy transfer
 <!-- TODO:  <21-11-24> -->

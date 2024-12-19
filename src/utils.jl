@@ -1,4 +1,4 @@
-# TODO: This should be in the SIMIlluminations package <18-11-24> 
+# TODO: This should be in the SIMIlluminations package? <18-11-24> 
 using Interpolations: InterpolationType, BoundaryCondition, interpolate, extrapolate
 using Tullio
 
