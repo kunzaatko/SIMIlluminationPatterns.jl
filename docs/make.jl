@@ -8,13 +8,17 @@ links = InterLinks(
     "TransferFunctions" => "https://kunzaatko.github.io/TransferFunctions.jl/stable/"
 )
 
-# NOTE: When updating, must update also in `test/runtests.jl` <18-12-24> 
+# NOTE: When updating, must update also in `test/runtests.jl` and `test/fix_doctests.jl` <18-12-24> 
 DocMeta.setdocmeta!(SIMIlluminationPatterns, :DocTestSetup, :(
         using SIMIlluminationPatterns;
         using SIMIlluminationPatterns.Synthetic;
         using Distributions;
         using TransferFunctions;
-        using TestImages
+        using TestImages;
+        filenames = ["moonsurface.tiff"]; # NOTE: This is a fix for failing doctests since on download, there is a print-out <19-12-24> 
+        testimage.(filenames; download_only=false);
+        using Logging; # NOTE: This does not need to be in the `make.jl` of docs. We want `@warn ` to function there <19-12-24> 
+        Logging.disable_logging(Logging.Warn)
     ); recursive=true)
 
 bib = CitationBibliography(

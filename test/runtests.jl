@@ -34,15 +34,17 @@ end
         # NOTE: Show for `Unitful.jl` does nm⁻¹ on macOS and nm^-1 on Linux. This is necessary, since the `jldoctest` is only one
         if !haskey(ENV, "GITHUB_ACTIONS") || haskey(ENV, "RUNNER_OS") && ENV["RUNNER_OS"] == "Linux"
             # NOTE: Better than doc-testing in `make.jl` because, I can track the coverage
-            # NOTE: When updating, must update also in `docs/make.jl` <18-12-24> 
+            # NOTE: When updating, must update also in `docs/make.jl` and  `test/fix_doctests.jl`<18-12-24> 
             DocMeta.setdocmeta!(SIMIlluminationPatterns, :DocTestSetup, :(
                     using SIMIlluminationPatterns;
                     using SIMIlluminationPatterns.Synthetic;
                     using Distributions;
-                    using TransferFunctions;
+                    using TransferFunctions: TransferFunctions;
                     using TestImages;
                     filenames = ["moonsurface.tiff"]; # NOTE: This is a fix for failing doctests since on download, there is a print-out <19-12-24> 
-                    testimage.(filenames; download_only=false)
+                    testimage.(filenames; download_only=false);
+                    using Logging; # NOTE: This does not need to be in the `make.jl` of docs. We want `@warn ` to function there <19-12-24> 
+                    Logging.disable_logging(Logging.Warn)
                 ); recursive=true)
             doctest(SIMIlluminationPatterns)
         end
