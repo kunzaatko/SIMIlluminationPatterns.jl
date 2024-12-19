@@ -234,7 +234,7 @@ apply(ill::Illumination, data::AbstractArray) = data .* ill.pattern(data)
 
 """
     OpticalTransfer <: `ModelComponent`
-Simulate light transfer through the optical system by via a transfer function ([`SampledTransferFuction`](@exref))
+Simulate light transfer through the optical system by via a transfer function ([`SampledTransferFuction`](@extref TransferFunctions `TransferFunctions.SampledTransferFunction`))
 
 # Examples
 ```jldoctest
