@@ -37,7 +37,7 @@ apply(::PhotonShotNoise, ::Any, ::Any)
 
 ```@docs
 OpticalTransfer
-apply(::OpticalTransfer, ::Any)
+apply(::OpticalTransfer, ::AbstractArray)
 ```
 <!-- TODO:  <21-11-24> -->
 
