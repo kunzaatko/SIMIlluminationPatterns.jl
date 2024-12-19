@@ -18,19 +18,17 @@ julia> sampled_ip(3, 4.5)
 julia> sampled_ip(CartesianIndex(1,1))
 0.6126893879715403
 
-julia> img = rand(10,10)
-10×10 Matrix{Float64}:
-[...]
+julia> img = rand(10,10);
 
-julia> sampled_ip((10, 10))
-10×10 Matrix{Float64}:
-[...]
+julia> sampled_ip((5, 5))
+5×5 Matrix{Float64}:
+ 1.5       0.832154  0.612689  1.42788   1.10004
+ 0.832154  0.612689  1.42788   1.10004   0.504955
+ 0.612689  1.42788   1.10004   0.504955  1.23233
+ 1.42788   1.10004   0.504955  1.23233   1.33906
+ 1.10004   0.504955  1.23233   1.33906   0.54003
 
-julia> sampled_ip(img)
-10×10 Matrix{Float64}:
-[...]
-
-julia> sampled_ip(img) == sampled_ip(img)
+julia> sampled_ip((10, 10)) == sampled_ip(img)
 true
 
 julia> sampled_ip(CartesianIndices(img)) != sampled_ip(img) # BEWARE! This is not equivalent
