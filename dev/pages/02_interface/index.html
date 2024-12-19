@@ -11,4 +11,34 @@ struct A2 &lt;: IlluminationPattern{2}
         # No need for any assertions
         new()
     end
-end</code></pre></div><a class="docs-sourcelink" target="_blank" href="https://github.com/kunzaatko/SIMIlluminationPatterns.jl/blob/0ab1c0be55a9fe79f16ab834fb728826601cd5f6/src/common.jl#L3-L33">source</a></section></article><article class="docstring"><header><a class="docstring-article-toggle-button fa-solid fa-chevron-down" href="javascript:;" title="Collapse docstring"></a><a class="docstring-binding" id="SIMIlluminationPatterns.IlluminationPatternRealization" href="#SIMIlluminationPatterns.IlluminationPatternRealization"><code>SIMIlluminationPatterns.IlluminationPatternRealization</code></a> — <span class="docstring-category">Type</span><span class="is-flex-grow-1 docstring-article-toggle-button" title="Collapse docstring"></span></header><section><div><p><code>N</code>-dimensional illumination pattern realization. You can fix the pixels sizes (<code>Δxy</code>) and sample the  pattern on your sensor and optical system setup.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/kunzaatko/SIMIlluminationPatterns.jl/blob/0ab1c0be55a9fe79f16ab834fb728826601cd5f6/src/illumination-pattern-api.jl#L1-L4">source</a></section></article></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../01_theory/">« Theory</a><a class="docs-footer-nextpage" href="../03_patterns/01_harmonic/">Harmonic »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.8.0 on <span class="colophon-date" title="Thursday 5 December 2024 09:37">Thursday 5 December 2024</span>. Using Julia version 1.11.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+end</code></pre></div><a class="docs-sourcelink" target="_blank" href="https://github.com/kunzaatko/SIMIlluminationPatterns.jl/blob/8b3ddb89c8241ad85aa7d5ab05970a62fff4abb4/src/common.jl#L3-L33">source</a></section></article><article class="docstring"><header><a class="docstring-article-toggle-button fa-solid fa-chevron-down" href="javascript:;" title="Collapse docstring"></a><a class="docstring-binding" id="SIMIlluminationPatterns.SampledIlluminationPattern" href="#SIMIlluminationPatterns.SampledIlluminationPattern"><code>SIMIlluminationPatterns.SampledIlluminationPattern</code></a> — <span class="docstring-category">Type</span><span class="is-flex-grow-1 docstring-article-toggle-button" title="Collapse docstring"></span></header><section><div><pre><code class="language-julia hljs">SampledIlluminationPattern{T&lt;:Real,N,IP&lt;:IlluminationPattern{N}}
+SampledIlluminationPattern([T=Float64], ip::IlluminationPattern, Δxy)</code></pre><p><code>N</code>-dimensional sampled illumination pattern. You can fix the pixels sizes (<code>Δxy</code>) and sample the  pattern on your sensor and optical system setup.</p><p><strong>Examples</strong></p><pre><code class="language-julia-repl hljs">julia&gt; h = Harmonic(1.0, π / 4, 2 / 61u&quot;nm&quot;, 0.0)
+Harmonic2D(m=1.0, θ=0.785, ν=0.0328 nm^-1, ϕ=0.0)
+
+julia&gt; sampled_ip = SampledIlluminationPattern(h, (30u&quot;nm&quot;, 30u&quot;nm&quot;))
+Harmonic2D(m=1.0, θ=0.785, ν=0.0328 nm^-1, ϕ=0.0)(Δxy = 30 nm) with eltype Float64
+
+julia&gt; sampled_ip(3, 4.5)
+1.1048934112868387
+
+julia&gt; sampled_ip(CartesianIndex(1,1))
+0.6126893879715403
+
+julia&gt; img = rand(10,10);
+
+julia&gt; sampled_ip((5, 5))
+5×5 Matrix{Float64}:
+ 1.5       0.832154  0.612689  1.42788   1.10004
+ 0.832154  0.612689  1.42788   1.10004   0.504955
+ 0.612689  1.42788   1.10004   0.504955  1.23233
+ 1.42788   1.10004   0.504955  1.23233   1.33906
+ 1.10004   0.504955  1.23233   1.33906   0.54003
+
+julia&gt; sampled_ip((10, 10)) == sampled_ip(img)
+true
+
+julia&gt; sampled_ip(CartesianIndices(img)) != sampled_ip(img) # BEWARE! This is not equivalent
+true
+
+julia&gt; sampled_ip(CartesianIndices((0:9, 0:9))) == sampled_ip(img) # This is equivalent
+true</code></pre></div><a class="docs-sourcelink" target="_blank" href="https://github.com/kunzaatko/SIMIlluminationPatterns.jl/blob/8b3ddb89c8241ad85aa7d5ab05970a62fff4abb4/src/sampled-illumination-pattern.jl#L1-L40">source</a></section></article></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../01_theory/">« Theory</a><a class="docs-footer-nextpage" href="../03_patterns/01_harmonic/">Harmonic »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.8.0 on <span class="colophon-date" title="Thursday 19 December 2024 02:14">Thursday 19 December 2024</span>. Using Julia version 1.11.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
