@@ -13,27 +13,44 @@ Synthetic
 ```@docs
 ModelComponent
 ```
+
+Below are the implemented `ModelComponent`s in the natural order of application.
 <!-- TODO:  <21-11-24> -->
+### Illumination
+```@docs
+Illumination
+apply(::Illumination, ::AbstractArray)
+```
+
 ### Noise 
 ```@docs
-GroundTruthGenerator
-
 AdditiveNoise
 apply(::AdditiveNoise, ::Any)
 ```
+
+```@docs
+PhotonShotNoise
+apply(::PhotonShotNoise, ::Any, ::Any)
+```
 <!-- TODO:  <21-11-24> -->
 ### Microscopy transfer
+
+```@docs
+OpticalTransfer
+apply(::OpticalTransfer, ::Any)
+```
 <!-- TODO:  <21-11-24> -->
 
-## Other Model Components
+### Other Model Components
 ```@docs
 DownSampling
-apply(::DownSampling, ::Any)
+apply(::DownSampling, ::AbstractArray)
 ```
 
 ## Ground Truth Models
 ### Fluorescent Microspheres (beads)
 ```@docs
+GroundTruthGenerator
 bead
 beads
 synthetic_beads_image

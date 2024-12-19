@@ -231,8 +231,8 @@ julia> img_sim = apply(ill, img);
 apply(ill::Illumination, data::AbstractArray) = data .* ill.pattern(data)
 
 """
-    OpticalTransfer <: `TransferFunction`
-Simulate optical transfer by convolving with a transfer function ([`SampledTransferFuction`](@exref))
+    OpticalTransfer <: `ModelComponent`
+Simulate light transfer through the optical system by via a transfer function ([`SampledTransferFuction`](@exref))
 
 # Examples
 ```jldoctest
@@ -247,6 +247,19 @@ OpticalTransfer(SampledPSF{2, BornWolf{Float64}}(BornWolf{Float64}(444.0 nm, 1.4
 struct OpticalTransfer <: ModelComponent
   transfer_function::SampledTransferFunction
 end
+
+
+"""
+    apply(ot::OpticalTransfer, data::AbstractArray)
+Simulate the light transfer by convolving with a transfer function `ot.transfer_function`.
+
+# Examples
+```jldoctest
+
+
+```
+"""
+apply(ot::OpticalTransfer, data::AbstractArray) = TransferFunctions.apply(ot.transfer_function, data)
 
 """
     bead([T=Float64], d::Length, α::PerLength, (Δxy::Length,Δxy::Length))
