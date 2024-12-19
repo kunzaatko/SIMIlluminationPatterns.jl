@@ -91,7 +91,7 @@ Base.show(io::IO, ::MIME"text/plain", ds::DownSampling) = print(io, "DownSamplin
     apply(ds::DownSampling, data)
 
 # Examples
-```jldoctest; filter = r"\s*Downloading artifact:.*\n" => s""
+```jldoctest
 julia> img = testimage("moonsurface.tiff");
 
 julia> ds = DownSampling(2);
@@ -136,7 +136,7 @@ end
 Add Poisson noise to `data` where the ``λ`` parameter of the Poisson distribution is proportional to the `ground_truth` (see [`PhotonShotNoise`](@ref))
 
 # Examples
-```jldoctest; filter = r"\s*Downloading artifact:.*\n" => s""
+```jldoctest
 julia> data = ground_truth = testimage("moonsurface.tiff");
 
 julia> noise_ps = PhotonShotNoise(0.1);
@@ -176,7 +176,7 @@ end
 Add noise to data from `noise.dist`
 
 # Examples
-```jldoctest; filter = r"\s*Downloading artifact:.*\n" => s""
+```jldoctest
 julia> img = testimage("moonsurface.tiff");
 
 julia> noise = AdditiveNoise(Normal(0, 0.1));
@@ -216,7 +216,7 @@ end
 Illuminate the image `data` with the sampled illumination pattern `ill.pattern`.
 
 # Examples
-```jldoctest; filter = r"\s*Downloading artifact:.*\n" => s""
+```jldoctest
 julia> img = testimage("moonsurface.tiff");
 
 julia> ip = Harmonic(1.0, π / 4, 2 / 61u"nm", 0.0);
