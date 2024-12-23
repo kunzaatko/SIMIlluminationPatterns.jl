@@ -136,7 +136,7 @@ end
     end
     @testset "Synthetic data" begin
         using SIMIlluminationPatterns.Synthetic
-        @test_throws AssertionError SyntheticDataModel([])
+        @test_throws AssertionError ForwardModel([])
         @testset "Ground Truth" begin end
         @testset "Synthetic Model" begin
             @testset "Noise" begin
