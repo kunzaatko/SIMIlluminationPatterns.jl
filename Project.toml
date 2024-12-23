@@ -1,7 +1,7 @@
 name = "SIMIlluminationPatterns"
 uuid = "e6514a50-921c-4af3-9933-d2ed4e901773"
 authors = ["Martin Kunz <martinkunz@email.cz> and contributors"]
-version = "0.3.0"
+version = "0.4.0"
 
 [deps]
 ColorTypes = "3da002f7-5984-5a60-b8a6-cbb66c0b333f"
