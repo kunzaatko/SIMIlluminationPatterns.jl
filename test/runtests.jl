@@ -137,7 +137,16 @@ end
     @testset "Synthetic data" begin
         using SIMIlluminationPatterns.Synthetic
         @test_throws AssertionError ForwardModel([])
-        @testset "Ground Truth" begin end
+        @testset "Ground Truth" begin
+            using SIMIlluminationPatterns.Synthetic
+
+            @test (Synthetic.bead(100u"nm", 30.5u"nm", peak_intensity=0.75) .<= 0.75) |> all
+            @test_throws AssertionError Synthetic.bead(100u"nm", 30.5u"nm"; subpixel_shift=(-1.5, 0.7))
+            @test_throws AssertionError Synthetic.bead(100u"nm", 30.5u"nm"; subpixel_shift=(1.5, 0.7))
+
+            @test (Synthetic.bead(100u"nm", 30.5u"nm"; subpixel_shift=(0.5, 0.5)) .== reverse(Synthetic.bead(100u"nm", 30.5u"nm"; subpixel_shift=(-0.5, -0.5)))) |> all
+            @test (2Synthetic.bead(100u"nm", 30.5u"nm"; peak_intensity=0.5) .== Synthetic.bead(100u"nm", 30.5u"nm")) |> all
+        end
         @testset "Synthetic Model" begin
             @testset "Noise" begin
                 data = ones(Float32, 100, 100)
