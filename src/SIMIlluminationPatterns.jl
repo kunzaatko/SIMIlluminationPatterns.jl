@@ -12,8 +12,6 @@ using FFTW
 using ImageCore
 using Tullio
 
-### source files
-
 include("utils.jl")
 
 # type system
