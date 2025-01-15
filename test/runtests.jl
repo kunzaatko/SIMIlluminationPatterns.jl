@@ -1,7 +1,7 @@
 using SIMIlluminationPatterns
 using SIMIlluminationPatterns: SIMIlluminationPatterns as SIM
 using Distributions, LinearAlgebra
-using Test, Documenter, Aqua
+using Test, Documenter, Aqua, CompatHelperLocal
 
 macro no_error(ex)
     quote
@@ -28,6 +28,9 @@ end
         end
         @testset "Ambiguities" begin
             @test length(Test.detect_ambiguities(SIMIlluminationPatterns)) == 0
+        end
+        @testset "Compat" begin
+            CompatHelperLocal.@check(checktest = false)
         end
     end
     @testset "DocTests" begin
