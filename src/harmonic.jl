@@ -1,147 +1,80 @@
-# TODO: 3D Harmonic has the same parameters as 2D harmonic, but can move z-sections. Implement. <30-10-23> 
-# TODO: Generalize to multiple dimensions <30-10-23> 
-# TODO: Implement constructors <11-10-23> 
-# TODO: Check if all the methods that I want to include are included <11-10-23> 
-# TODO: Add `@ref` links to `Frequency` and `Length` <12-10-23> 
+using Unitful: Length
+using Unitful: 𝐋
+using StaticArrays: @SVector, SVector
+using DomainSets: volume, components, DomainSets, Rectangle
 # TODO: Instead of testing every one of the constructors of `Harmonic` separately, I should define a set of the
 # parameters and compute the corresponding other parameters from them in a previous example. It would be more
 # explanatory for the user <19-12-24> 
-@doc raw"""
-Harmonic (sinusoidal) illumination pattern in the form
+
+"""
+    Harmonic{T} <: IlluminationPattern{2}
+2D Harmonic (sinusoidal) illumination pattern. 
+
+The intensity is given by
 ```math
-    I(\vec{r})=1+{\frac{m}{2}}\cos\left(2π⋅ (kₓ⋅(\vec{r})ₓ + k_y ⋅ (\vec{r})_y) + \phi\right)
-```
-
-    Harmonic(m::Real, θ::Real, ν::Frequency, ϕ::Real)
-    Harmonic(m::Real, (ν_x, ν_y)::Tuple{Frequency,Frequency}, ϕ::Real)
-    Harmonic(m::Real, (ν_x, ν_y)::Tuple{Real,Real}, ϕ::Real, Δxy::Length)
-    Harmonic(m::Real, (ν_x, ν_y)::Tuple{Real,Real}, ϕ::Real, (Δx, Δy)::Tuple{Length,Length})
-
-    Harmonic(m::Real, θ::Real, λ::Length, ϕ::Real)
-    Harmonic(m::Real, (λ_x, λ_y)::Tuple{Length,Length}, ϕ::Real)
-    Harmonic(m::Real, θ::Real, λ::Real, ϕ::Real, Δxy::Length)
-    Harmonic(m::Real, θ::Real, λ::Real, ϕ::Real, (Δx, Δy)::Tuple{Length,Length})
-
-    Harmonic(m::Real, (δ_x, δ_y)::Tuple{Real, Real}, size::Union{Tuple{Real, Real}, Real}, ϕ::Real, Δxy::Length)
-    Harmonic(m::Real, (δ_x, δ_y)::Tuple{Real, Real}, size::Union{Tuple{Real, Real}, Real}, ϕ::Real, (Δx, Δy)::Tuple{Length,Length})
-
-
-Parameters have types `Real`, [`Frequency`](@ref) or [`Unitful.Length`](@extref Unitful Length) and denote:
-+ `m`: modulation factor
-+ `θ`: orientation angle (from the ``x``-axis) (`\theta`)
-+ `ν`: frequency (`\nu`)
-+ `(ν_x, ν_y)`: wave vector ('shift' in physical units) (``(ν_x, ν_y) = (\sin(θ) ⋅ ν , \, \cos(θ) ⋅ ν)``)
-+ `(δ_x, δ_y)`: shift in pixels
-+ `size`: size of acquisition image, from which the shift `(δ_x, δ_y)` is determined
-+ `λ`: wavelength (`\lambda`)
-+ `(λ_x, λ_y)`: wavepeak vector (``(λ_x, λ_y) = (\sin(θ) ⋅ λ , \, \cos(θ) ⋅ λ)``)
-+ `ϕ`: phase offset (`\phi`)
-+ `Δxy` or `(Δx, Δy)`: ``x``-axis and ``y``-axis pixel sizes
-
-# Examples
-```jldoctest
-julia> h1 = Harmonic(1, π/2, 1/(2*61u"nm"), π/4)
-Harmonic2D(m=1.0, θ=1.57, ν=0.0082 nm^-1, ϕ=0.785)
-
-julia> h2 = Harmonic(1, (0u"nm^-1", 1/(2*61u"nm")), π/4);
-
-julia> h3 = Harmonic(1, (0, 1/2), π/4, 61u"nm");
-
-julia> h4 = Harmonic(1, (0, 1/4), π/4, (61u"nm", 30.5u"nm"));
-
-julia> h5 = Harmonic(1, π/2, 2*61u"nm", π/4);
-
-julia> h6 = Harmonic(1, (0u"nm", 2*61u"nm"), π/4);
-
-julia> # h7 = Harmonic(1, π/2, 2, π/4, 61u"nm") # FIX
-
-julia> # h8 = Harmonic(1, π/2, 2, π/4, (61u"nm", 61u"nm")) # FIX
-
-julia> h9 = Harmonic(1, (0, 256), (512, 512), π/4, 61u"nm");
-
-julia> h10 = Harmonic(1, (0, 128), (512, 512), π/4, (61u"nm", 30.5u"nm"));
-
-julia> h1 == h2 == h3 == h4 == h5 == h6 == h9 == h10
-true
+    I(r) = 1 + (m/2) * cos(2π * (k ⋅r + ϕ))
 ```
 """
-struct Harmonic{d} <: IP{d}
-  "amplitude modulation"
-  m::Real
-  "orientation angle"
-  θ::Real
-  "frequency"
-  ν::Frequency
-  "phase offset"
-  ϕ::Real
+struct Harmonic{T} <: IlluminationPattern{2}
+    m::T
+    Pθ::SVector{2,<:Freq{T}}
+    ϕ::T
+    I0::DimT{T,𝐋^-2}
 
-  function Harmonic{N}(m::Real, θ::Real, ν::Frequency, ϕ::Real) where {N}
-    # m <= 2one(m) || throw(DomainError(m, "amplitude modulation >2 would produce negative illumination intensities, which does not make sense"))
-    m <= 2one(m) || @warn "amplitude modulation >2 produces negative illumination intensities and should be avoided if possible"
-    m >= zero(m) || throw(DomainError(m, "amplitude modulation ∈(-1,0) is equivalent to shifting the phase offset by π (180°) and is not allowed"))
-    -π < θ <= π || throw(DomainError(θ, "use an orientation ∈(-π, π) (between -180° and 180°) (perhaps you should use: `mod(θ + π, 2π) - π`)"))
-    zero(ϕ) <= ϕ < 2π || throw(DomainError(ϕ, "use a phase offset ∈[0, 2π) (between 0° and 360°) (perhaps you should use: `mod(ϕ, 2π)`)"))
-    return new{N}(m, θ, ν, ϕ)
-  end
+    function Harmonic{T}(m::T, Pθ::SVector{2,<:Frequency{T}}, ϕ::T, I0::DimT{T,𝐋^-2}) where {T}
+        m >= zero(T) || throw(DomainError(m, "amplitude modulation ∈(-1,0) is equivalent to shifting the phase offset by π (180°) and is not allowed"))
+        zero(T) <= ϕ < 2π || throw(DomainError(ϕ, "use a phase offset ∈[0, 2π) (between 0° and 360°) (perhaps you should use: `mod(ϕ, 2π)`)"))
+
+        return new{T}(m, Pθ, ϕ, I0)
+    end
+end
+function Harmonic(m::Real, Pθ::AbstractVector{<:Frequency{<:Real}}, ϕ::Real, I0::DimT{<:Real,𝐋^-2})
+    Pθ_unit = unit.(Pθ)
+    I0_unit = unit(I0)
+    @assert length(Pθ) == 2 "Wave vector must have length 2"
+    m, Pθ1, Pθ2, ϕ, I0_val = promote(m, ustrip.(Pθ)..., ϕ, ustrip(I0))
+    Pθ = SVector{2}([Pθ1, Pθ2] .* Pθ_unit)
+    I0 = I0_val * I0_unit
+    Harmonic{typeof(m)}(m, Pθ, ϕ, I0)
 end
 
-const Harmonic2D = Harmonic{2}
-@doc raw"""
-```@repl
-Harmonic2D === Harmonic{2}
-Harmonic{2} <: IlluminationPattern{2}
-```
-"""
-Harmonic2D
+Base.eltype(h::Harmonic{T}) where {T} = T
 
-const Harmonic3D = Harmonic{3}
-@doc """
-```@repl
-Harmonic3D === Harmonic{3}
-Harmonic{3} <: IlluminationPattern{3}
-```
-"""
-Harmonic3D
+cossin(θ) = reverse(sincos(θ))
 
-@inline cossin(θ::Real) = reverse(sincos(θ))
-θν(ν::Tuple{Frequency,Frequency}) = (atan(ν[2], ν[1]), hypot(ν...))
-θν(ν::Tuple{Real,Real}, Δxy::Union{Tuple{Length,Length},Length}) = θν(ν ./ Δxy)
-θν(λ::Tuple{Length,Length}) = (atan(λ[2], λ[1]), ν(hypot(λ...)))
-ν(λ::Length) = 1 / λ
-θν(θ::Real, λ::Real, Δxy::Union{Tuple{Length,Length},Length}) = θν(λ .* cossin(θ) .* Δxy)
-θν(δ::Tuple{Real,Real}, size::Union{Tuple{Real,Real},Real}, Δxy::Union{Tuple{Length,Length},Length}) = θν(δ ./ (size .* Δxy))
+δ(Pθ::SVector{2,<:Frequency}, A::SpatialMatrix) = Pθ .* sampling(A) .* size(A)
+δ(h::Harmonic, A::SpatialMatrix) = δ(h.Pθ, A)
+Pθ(θ::Real, δ::Real, Δ::PixelSize{2}) = SVector{2}(cossin(θ) ./ (Δ ./ δ))
+θ(Pθ::SVector{2,<:Frequency}) = atan(Pθ[2], Pθ[1])
+θ(h::Harmonic) = θ(h.Pθ)
+ν(Pθ::SVector{2,<:Frequency}) = hypot(Pθ...)
+ν(h::Harmonic) = ν(h.Pθ)
+λ(x) = 1 / ν(x)
 
-Harmonic(a...) = Harmonic{2}(a...)
-Harmonic{N}(m::Real, ν::Tuple{Frequency,Frequency}, ϕ::Real) where {N} = Harmonic{N}(m, θν(ν)..., ϕ)
-Harmonic{N}(m::Real, ν::Tuple{Real,Real}, ϕ::Real, Δxy::Union{Tuple{Length,Length},Length}) where {N} = Harmonic{N}(m, θν(ν, Δxy)..., ϕ)
-Harmonic{N}(m::Real, λ::Tuple{Length,Length}, ϕ::Real) where {N} = Harmonic{N}(m, θν(λ)..., ϕ)
-Harmonic{N}(m::Real, θ::Real, λ::Length, ϕ::Real) where {N} = Harmonic{N}(m, θ, ν(λ), ϕ)
-Harmonic{N}(m::Real, θ::Real, λ::Real, ϕ::Real, Δxy::Union{Tuple{Length,Length},Length}) where {N} = Harmonic{N}(m, θ, θν(θ, λ, Δxy), ϕ)
-Harmonic{N}(m::Real, δ::Tuple{Real,Real}, size::Union{Tuple{Real,Real},Real}, ϕ::Real, Δxy::Union{Tuple{Length,Length},Length}) where {N} = Harmonic{N}(m, θν(δ, size, Δxy)..., ϕ)
-
-function (h::Harmonic{2})(x::Length, y::Length)
-  # TODO: Monomorphize the Length and Frequency <12-10-23> 
-  # m, θ, ϕ = promote(h.m, h.θ, h.ϕ)
-  return 1 + h.m / 2 * cos(2π * sum(cossin(h.θ) .* h.ν .* (x, y)) + h.ϕ)
+@inline function intensity(h::Harmonic, r::SVector{2,<:Length})
+    return (1 - (h.m / 2) * cos(2π * dot(h.Pθ, r) + h.ϕ)) * h.I0
 end
 
-δ(h::Harmonic{N}) where {N} = cossin(h.θ) .* h.ν
+@inline function intensity(h::Harmonic, R::Rectangle)
+    Dx, Dy = components(R)
+    Δx, Δy = volume(Dx), volume(Dy)
+    xc, yc = minimum(Dx) + (Δx / 2), minimum(Dy) + (Δy / 2)
+    rc = SVector{2}([xc, yc])
+    kx, ky = h.Pθ
+    # NOTE: Julia definition of `sinc` is `sinc(x) == sin(π * x)/(π * x)`
+    return h.I0 * Δx * Δy - (h.I0 * Δx * Δy) * sinc(kx * Δx) * sinc(ky * Δy) * (h.m / 2) * cos(2π * dot(h.Pθ, rc) + h.ϕ)
+end
+
+# δ(h::Harmonic) = cossin(h.θ) .* h.ν
 # FIX: What does `size` represent? If it is the size of the image in pixels, it should only take Integer values. <25-11-24> 
-δ(hr::SampledIP{T,N,Harmonic{N}}, size::NTuple{N,Real}) where {T,N} = hr.Δxy .* δ(hr.pattern) .* size
+# δ(hr::SampledIP{T,N,Harmonic{N}}, size::NTuple{N,Real}) where {T,N} = hr.Δxy .* δ(hr.pattern) .* size
 
 # CHECK: This gives the shift δ that is determined by the size of the image... Is this correct? <05-12-23> 
-δ(hr::SampledIP{T,N,Harmonic{N}}, size::Real) where {T,N} = δ(hr, ntuple(_ -> size, Val(N)))
+# δ(hr::SampledIP{T,N,Harmonic{N}}, size::Real) where {T,N} = δ(hr, ntuple(_ -> size, Val(N)))
 
-# TODO: Abstract to multiple dimensions <30-10-23> 
-# function (h::Harmonic{N})(v::Vararg{Length,N}) where {N}
-#     m, θ, ϕ = promote(h.m, h.θ, h.ϕ)
-#     return 1 + m / 2 * cos(2π * sum(sincos(θ) .* h.ν .* (y, x)) + ϕ)
-# end
-
-# TODO: Print the parameters that the Harmonic was created with with show. This would be done by storing them in the
-# type itself <12-10-23> 
-function Base.show(io::IO, ::MIME"text/plain", h::Harmonic{N}) where {N}
-  print(io, "Harmonic$(N)D(", "m=", round(h.m; sigdigits=3), ", θ=", round(h.θ; sigdigits=3), ", ν=", round(typeof(h.ν), h.ν; sigdigits=3), ", ϕ=", round(h.ϕ; sigdigits=3), ")")
+function Base.show(io::IO, ::MIME"text/plain", h::Harmonic)
+    Base.showarg(io, h, true)
+    print(io,"(", rounded(("m", h.m), ("Pθ", h.Pθ), ("ϕ", h.ϕ), ("I0", h.I0); sigdigits=3), ")")
 end
 
-export Harmonic, Harmonic2D, Harmonic3D
+export Harmonic

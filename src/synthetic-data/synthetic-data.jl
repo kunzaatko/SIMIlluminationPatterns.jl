@@ -12,15 +12,11 @@ The model of synthetic data generation is characterised by
 - **Optical transfer** -- transfer of the light through the optical system
 """
 module Synthetic
-using OffsetArrays, ImageFiltering, FFTW, ColorTypes, Unitful
-using TransferFunctions: TransferFunctions as TF
+using OffsetArrays, FFTW, Unitful, ColorTypes, TransferFunctions, ImageFiltering
+using TransferFunctions: TransferFunction, PixelSize, Length, Frequency
 using ImageFiltering: mapwindow
-using TransferFunctions: TransferFunction, SampledTransferFunction
-using SIMIlluminationPatterns: GenericGrayImage, Length, IlluminationPattern, SampledIlluminationPattern
-using Unitful: Quantity, 𝐋, Length
+using SIMIlluminationPatterns: IlluminationPattern
 using Distributions: Normal, Uniform, mean, Poisson, Distribution
-
-const PerLength = Quantity{<:Any,inv(𝐋)}
 
 """
     Synthetic.GroundTruthGenerator

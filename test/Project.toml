@@ -1,14 +1,12 @@
 [deps]
 Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"
-CompatHelperLocal = "5224ae11-6099-4aaa-941d-3aab004bd678"
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 Logging = "56ddb016-857b-54e1-b83d-db4d58db5568"
+SIMIlluminationPatterns = "e6514a50-921c-4af3-9933-d2ed4e901773"
 Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 TestImages = "5e47fb64-e119-507b-a336-dd2b206d9990"
 TransferFunctions = "ea859a41-d6bf-4726-8e40-524191381158"
-
-[compat]
-Aqua = "0.7"
+Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"

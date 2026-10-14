@@ -7,7 +7,3 @@ CurrentModule = SIMIlluminationPatterns
 ```@docs
 IlluminationPattern
 ```
-
-```@docs
-SampledIlluminationPattern
-```

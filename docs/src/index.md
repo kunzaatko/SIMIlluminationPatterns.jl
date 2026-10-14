@@ -4,7 +4,9 @@ CurrentModule = SIMIlluminationPatterns
 
 # SIMIlluminationPatterns.jl
 
-_Illumination patterns used for the structured illumination pattern super-resolution imaging method_
+_Structured Illumination Microscopy (SIM) Illumination Patterns_
 
-## Package Features
-<!-- TODO:  <04-11-23> -->
+This is a package that for representing the illumination patterns used for the SIM super-resolution microscopy and
+methods for working with them.
+
+<!-- TODO: Some pointers to the features of this package and the manual <08-09-25> -->
