@@ -23,9 +23,9 @@ jobs:
       fail-fast: false
       matrix:
         version:
-          - '1.9' # oldest possible version  (`stack` function support)
-          - '~1.10.0-0'
-          - 'nightly'
+          - 'min'
+          - 'lts'
+          - 'pre'
         os:
           - ubuntu-latest
           - macOS-latest
