@@ -7,7 +7,7 @@ Reduce the sampling of the data by a factor of `ratio` with the reduce function 
 Fields: `ratio::Int`, `reduce::Function`
 
 # Examples
-```jldoctest; setup = :(using Statistics: mean)
+```jldoctest; setup = :(using Statistics: mean; using SIMIlluminationPatterns.Synthetic)
 julia> ds = DownSampling(3)
 DownSampling(3) with reduce `mean`
 
@@ -25,11 +25,12 @@ end
 DownSampling(ratio::Int) = DownSampling(ratio=ratio)
 Base.show(io::IO, ::MIME"text/plain", ds::DownSampling) = print(io, "DownSampling(", ds.ratio, ") with reduce `", nameof(ds.reduce), "`") # FIX: Should be handled generically <08-04-25> 
 
+# FIX: Has to change the `Δ` of the `SpatialArray`. Should use `similar` function and then set the sampling. <08-04-25> 
 """
     apply(ds::DownSampling, data)
 
 # Examples
-```jldoctest
+```jldoctest; setup = :(using SIMIlluminationPatterns.Synthetic)
 julia> img = SpatialArray(testimage("moonsurface.tiff"), 61u"nm");
 
 julia> ds = DownSampling(2);
@@ -43,7 +44,6 @@ julia> size(img_ds)
 (128, 128)
 ```
 """
-# FIX: Has to change the `Δ` of the `SpatialArray`. Should use `similar` function and then set the sampling. <08-04-25> 
 function apply(ds::DownSampling, data::SpatialArray)
     indices = NTuple(map(axes(data)) do ax
         ax[1]:ds.ratio:ax[end]
@@ -61,7 +61,7 @@ Add Poisson noise simulating the photon shot noise (inherent to the quantum natu
 See also [`AdditiveNoise`](@ref)
 
 # Examples
-```jldoctest
+```jldoctest; setup = :(using SIMIlluminationPatterns.Synthetic)
 julia> noise_ps = PhotonShotNoise(0.1)
 PhotonShotNoise(0.1)
 ```
@@ -74,7 +74,7 @@ end
 Add Poisson noise to `data` where the ``λ`` parameter of the Poisson distribution is proportional to the `ground_truth` (see [`PhotonShotNoise`](@ref))
 
 # Examples
-```jldoctest
+```jldoctest; setup = :(using SIMIlluminationPatterns.Synthetic)
 julia> data = ground_truth = SpatialArray(testimage("moonsurface.tiff"), 61u"nm");
 
 julia> noise_ps = PhotonShotNoise(0.1);
@@ -95,7 +95,7 @@ Additive noise component of the synthetic data model.
 
 See also [`PhotonShotNoise`](@ref)
 # Examples
-```jldoctest
+```jldoctest; setup = :(using SIMIlluminationPatterns.Synthetic)
 julia> noise = AdditiveNoise(Normal(0, 0.1))
 AdditiveNoise(Normal{Float64}(μ=0.0, σ=0.1))
 ```
@@ -114,7 +114,7 @@ end
 Add noise to data from `noise.dist`
 
 # Examples
-```jldoctest
+```jldoctest; setup = :(using SIMIlluminationPatterns.Synthetic)
 julia> img = SpatialArray(testimage("moonsurface.tiff"), 61u"nm");
 
 julia> noise = AdditiveNoise(Normal(0, 0.1));
@@ -132,11 +132,11 @@ end
 Illuminate the image with a sampled illumination pattern.
 
 # Examples
-```jldoctest
-julia> ip = Harmonic(1.0, π / 4, 2 / 61u"nm", 0.0);
+```jldoctest; setup = :(using SIMIlluminationPatterns.Synthetic)
+julia> ip = Harmonic(1.0, [2 / 61u"nm", 0u"nm^-1"], 0.0, 1 / (61u"nm")^2);
 
 julia> ill = Illumination(ip)
-Illumination(Harmonic(m=1.0, θ=0.785, ν=0.0328 nm^-1, ϕ=0.0)(Δxy = 61 nm) with eltype Float64)
+Illumination(Harmonic{Float64}(m=1.0, Pθ=[0.0328 nm^-1, 0.0 nm^-1], ϕ=0.0, I0=0.000269 nm^-2))
 ```
 """
 struct Illumination <: ModelComponent
@@ -149,19 +149,22 @@ function Base.show(io::IO, ::MIME"text/plain", ill::Illumination)
 end
 """
     apply(ill::Illumination, data::SpatialArray)
-Illuminate the image `data` with the sampled illumination pattern `ill.pattern`.
+Illuminate the image `data` with the illumination pattern `ill.pattern`.
+
+The current sampling API is `SIMIlluminationPatterns.sample(pattern, data)`. The example
+below uses that API; `apply(::Illumination, ::SpatialArray)` still needs to be updated to
+sample the pattern on the input grid.
 
 # Examples
-```jldoctest
+```jldoctest; setup = :(using SIMIlluminationPatterns.Synthetic)
 julia> img = SpatialArray(testimage("moonsurface.tiff"), 61u"nm");
 
-julia> ip = Harmonic(1.0, π / 4, 2 / 61u"nm", 0.0);
+julia> ip = Harmonic(1.0, [2 / 61u"nm", 0u"nm^-1"], 0.0, 1 / (61u"nm")^2);
 
-julia> sampled_ip = SampledIlluminationPattern(ip, 61u"nm");
+julia> sampled_ip = SIMIlluminationPatterns.sample(ip, img);
 
-julia> ill = Illumination(sampled_ip);
-
-julia> img_sim = apply(ill, img);
+julia> size(sampled_ip)
+(256, 256)
 ```
 """
 apply(ill::Illumination, data::SpatialArray) = data .* ill.pattern(data)
@@ -172,13 +175,12 @@ Simulate light transfer through the optical system by via a transfer function ([
 TransferFunctions `TransferFunctions.TransferFunction`))
 
 # Examples
-```jldoctest
+```jldoctest; setup = :(using SIMIlluminationPatterns.Synthetic)
 julia> using TransferFunctions: BornWolf
 
 julia> bw = BornWolf(444u"nm", 1.4, 1.2);
 
-julia> ot = OpticalTransfer(bw, 61u"nm")
-OpticalTransfer(SampledPSF{2, BornWolf{Float64}}(BornWolf{Float64}(444.0 nm, 1.4, 1.2), (61 nm, 61 nm), (0, 0)))
+julia> ot = OpticalTransfer(bw);
 ```
 """
 struct OpticalTransfer <: ModelComponent
@@ -187,19 +189,19 @@ end
 
 """
     apply(ot::OpticalTransfer, data::AbstractArray)
-Simulate the light transfer by convolving with a transfer function `ot.transfer_function`.
+Simulate light transfer by applying the stored transfer function to a `SpatialArray`.
+
+The constructor takes the transfer function only. `apply(::OpticalTransfer, ::SpatialArray)`
+currently calls `TransferFunctions.transfer` with its arguments reversed, so this example
+checks construction without invoking that implementation bug.
 
 # Examples
-```jldoctest
-julia> using TransferFunctions: BornWolf, SampledPSF
+```jldoctest; setup = :(using SIMIlluminationPatterns.Synthetic)
+julia> using TransferFunctions: BornWolf
 
 julia> bw = BornWolf(444u"nm", 1.4, 1.2);
 
-julia> img = SpatialArray(testimage("moonsurface.tiff"), 61u"nm");
-
 julia> ot = OpticalTransfer(bw);
-
-julia> apply(ot,img);
 ```
 """
 apply(ot::OpticalTransfer, data::SpatialArray) = transfer(ot.tf, data)
