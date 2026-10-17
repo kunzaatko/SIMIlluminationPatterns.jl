@@ -15,7 +15,7 @@ module Synthetic
 using OffsetArrays, FFTW, Unitful, ColorTypes, TransferFunctions, ImageFiltering
 using TransferFunctions: TransferFunction, PixelSize, Length, Frequency
 using ImageFiltering: mapwindow
-using SIMIlluminationPatterns: IlluminationPattern
+using SIMIlluminationPatterns: IlluminationPattern, sample
 using Distributions: Normal, Uniform, mean, Poisson, Distribution
 
 """

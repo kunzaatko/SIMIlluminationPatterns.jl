@@ -19,7 +19,8 @@ Generate a synthetic microscopy image `Matrix{T}` of fluorescent beads with real
 - `min_distance::Quantity=0.06u"μm"`: Minimum allowed distance between bead centers
 - `α_evanescent::Quantity=1/200u"nm"`: Evanescent field decay constant
 - `noise_model::Distribution=Normal{Float32}(2.0503677f-12, 4*0.005893613f0)`: Statistical model for image noise
-- `optical_transfer_function=IdealOTFwithCurvature(488u"nm", 1.4, 1.0, 0.9)`: Optical transfer function for microscope simulation
+- `illumination_patterns::Vector{<:Union{Nothing,IlluminationPattern}}=[nothing]`: Illumination patterns to illuminate the image with; a separate output image is returned for each pattern (`nothing` results in an unilluminated image)
+- `optical_transfer_function=CircularPupilOTF(488u"nm", 1.4, 1.0, 0.9)`: Optical transfer function for microscope simulation
 
 # Extended help
 Generates a synthetic microscopy image of fluorescent beads, simulating:
@@ -68,7 +69,8 @@ function synthetic_beads_image(
     # Adding the beads model
     buf = zeros(T, image_size)
     # TODO: padding should be determined based on the size of the bead (how far can it overstep the border?)
-    buf_padded = padarray(buf, Fill(zero(T), (3, 3), (3, 3)))
+    padding = 3
+    buf_padded = padarray(buf, Fill(zero(T), (padding, padding), (padding, padding)))
     for p in beads_positions
         whole_px = round.(Int, p)
         subpixel_shift = p .- whole_px
@@ -82,26 +84,25 @@ function synthetic_beads_image(
 
     # Adding noise
     if !isnothing(noise_model)
-        buf_padded += OffsetArray(rand(noise_model, size(buf_padded)), -3, -3) # FIX: Better do this generically
+        buf_padded += OffsetArray(rand(noise_model, size(buf_padded)), -padding, -padding)
     end
 
-    # TODO: Change to IlluminationPattern instead of IlluminationPatternRealization <18-11-24> 
     # Illuminating the image
-    @assert all(typeof(ip) <: Union{Nothing,SampledIlluminationPattern} for ip in illumination_patterns) "`illumination_patterns` must be `<:IlluminationPattern` or `nothing`"
-    # TODO: Generalize for the size <18-11-24> 
-    sampled_patterns = map(p -> p isa Nothing ? nothing : p(-2:1027, -2:1027), illumination_patterns)
-    # TODO: This should be done in one go to avoid checking that it is a matrix... <18-11-24> 
+    @assert all(typeof(ip) <: Union{Nothing,IlluminationPattern} for ip in illumination_patterns) "`illumination_patterns` must be `<:IlluminationPattern` or `nothing`"
+    # The patterns are sampled on the sampling grid of `buf_padded` so that they align with it
+    illumination_grid = SpatialArray(buf_padded, pxsize)
+    sampled_patterns = map(p -> p isa Nothing ? nothing : sample(p, illumination_grid), illumination_patterns)
+    # TODO: This should be done in one go to avoid checking that it is a sampled array... <18-11-24> 
     bufs_illuminated = map(sampled_patterns) do pat
-        pat isa Matrix ? buf_padded .* OffsetMatrix(pat, -3, -3) : buf_padded
+        pat isa SpatialArray ? buf_padded .* pat : buf_padded
     end
 
     # Optical transfer
     # FIX: This malforms the padding. It should be done differently
     if !isnothing(optical_transfer_function)
-        # FIX: This should really be done generically. It will fail if I do not have the predefined arguments
-        sampled_otf = otf(optical_transfer_function, pxsize, (1030, 1030))
+        sampled_otf = otf(optical_transfer_function, pxsize, map(n -> n + 2 * padding, image_size))
         bufs_padded = map(bufs_illuminated) do buf
-            buf = ifft(sampled_otf .* fft(buf))[4:end-3, 4:end-3]
+            buf = ifft(sampled_otf .* fft(buf))[map(n -> padding+1:padding+n, image_size)...]
             return real(buf)
         end
     else
