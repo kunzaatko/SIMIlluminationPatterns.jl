@@ -12,17 +12,17 @@ SIMIlluminationPatterns.IlluminationPattern
 Such an illumination pattern can be sampled at points within the object plane/space by
 [`intensity(IP, r)`](@ref intensity).
 ```@docs
-SIMIlluminationPatterns.intensity(::IlluminationPattern{N}, ::Vararg{Real, N})
+SIMIlluminationPatterns.intensity(::IlluminationPattern, ::Any)
 ```
 or as an illumination of a object density described by a [`SpatialArray`](@extref TransferFunctions.SpatialArray) by the
 `SIMIlluminationPatterns.sample(IP, A)` method
 ```@docs
-SIMIlluminationPatterns.sample(::IlluminationPattern{N}, ::SpatialArray{N})
+SIMIlluminationPatterns.sample(::IlluminationPattern, ::SpatialArray)
 ```
  
 # Harmonic Illumination Pattern
 
- The harmonic illumination pattern is represented by the [`Harmonic`](@ref) type
- ```@docs
- Harmonic
- ```
+The harmonic illumination pattern is represented by the [`Harmonic`](@ref) type
+```@docs
+Harmonic
+```

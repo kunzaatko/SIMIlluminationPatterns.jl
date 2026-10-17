@@ -40,8 +40,10 @@ makedocs(;
     ),
     pages=[
         "Home" => "index.md",
+        "Theory" => "pages/01_theory.md",
         "Manual" => "manual.md",
         "Harmonic" => "harmonic.md",
+        "Synthetic Data" => "pages/04_synthetic_data.md",
         "References" => [
             "API" => "apireference.md",
             "Bibliography" => "bibliography.md",

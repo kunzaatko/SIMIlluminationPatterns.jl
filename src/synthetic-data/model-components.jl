@@ -188,20 +188,25 @@ struct OpticalTransfer <: ModelComponent
 end
 
 """
-    apply(ot::OpticalTransfer, data::AbstractArray)
-Simulate light transfer by applying the stored transfer function to a `SpatialArray`.
-
-The constructor takes the transfer function only. `apply(::OpticalTransfer, ::SpatialArray)`
-currently calls `TransferFunctions.transfer` with its arguments reversed, so this example
-checks construction without invoking that implementation bug.
+    apply(ot::OpticalTransfer, data::SpatialArray)
+Simulate light transfer by applying the stored transfer function to a `SpatialArray` in the
+Fourier domain. The transfer function is sampled on the sampling grid of `data`, so it must
+match its dimensionality.
 
 # Examples
 ```jldoctest; setup = :(using SIMIlluminationPatterns.Synthetic)
-julia> using TransferFunctions: BornWolf
+julia> using TransferFunctions: CircularPupilOTF
 
-julia> bw = BornWolf(444u"nm", 1.4, 1.2);
+julia> otf_model = CircularPupilOTF(488u"nm", 1.4, 1.0, 0.9);
 
-julia> ot = OpticalTransfer(bw);
+julia> img = SpatialArray(Float64.(testimage("moonsurface.tiff")), 61u"nm");
+
+julia> ot = OpticalTransfer(otf_model);
+
+julia> img_ot = apply(ot, img);
+
+julia> size(img_ot)
+(256, 256)
 ```
 """
-apply(ot::OpticalTransfer, data::SpatialArray) = transfer(ot.tf, data)
+apply(ot::OpticalTransfer, data::SpatialArray) = conv(data, otf(ot.tf, data))

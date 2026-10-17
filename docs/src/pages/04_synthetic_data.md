@@ -19,7 +19,7 @@ Below are the implemented `ModelComponent`s in the natural order of application.
 ### Illumination
 ```@docs
 Illumination
-apply(::Illumination, ::AbstractArray)
+apply(::Illumination, ::SpatialArray)
 ```
 
 ### Noise 
@@ -30,28 +30,26 @@ apply(::AdditiveNoise, ::Any)
 
 ```@docs
 PhotonShotNoise
-apply(::PhotonShotNoise, ::Any, ::Any)
+apply(::PhotonShotNoise, ::SpatialArray, ::SpatialArray)
 ```
 <!-- TODO:  <21-11-24> -->
 ### Microscopy transfer
 
 ```@docs
 OpticalTransfer
-apply(::OpticalTransfer, ::AbstractArray)
+apply(::OpticalTransfer, ::SpatialArray)
 ```
 <!-- TODO:  <21-11-24> -->
 
 ### Other Model Components
 ```@docs
 DownSampling
-apply(::DownSampling, ::AbstractArray)
+apply(::DownSampling, ::SpatialArray)
 ```
 
 ## Ground Truth Models
 ### Fluorescent Microspheres (beads)
 ```@docs
 GroundTruthGenerator
-bead
-beads
 synthetic_beads_image
 ```

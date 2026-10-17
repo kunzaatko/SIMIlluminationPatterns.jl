@@ -1,6 +1,7 @@
 # TODO: Use the same syntax as `Augmentor.jl` <28-08-25> 
 
 using TransferFunctions
+using TransferFunctions.SyntheticData: bead
 
 # TODO: Should be similar to the transfer functions model type that can be then sampled <06-03-25> 
 abstract type SyntheticData end
@@ -71,7 +72,7 @@ function synthetic_beads_image(
     for p in beads_positions
         whole_px = round.(Int, p)
         subpixel_shift = p .- whole_px
-        b = bead(bead_radius * 2, α_evanescent, pxsize; subpixel_shift)
+        b = bead(bead_radius * 2, pxsize; α=α_evanescent, position=subpixel_shift)
         window = map(extrema(axes(b)), whole_px) do ex, px
             ex .+ px
         end
@@ -97,10 +98,10 @@ function synthetic_beads_image(
     # Optical transfer
     # FIX: This malforms the padding. It should be done differently
     if !isnothing(optical_transfer_function)
-        sampled_otf = SampledOTF(optical_transfer_function, pxsize)
         # FIX: This should really be done generically. It will fail if I do not have the predefined arguments
+        sampled_otf = otf(optical_transfer_function, pxsize, (1030, 1030))
         bufs_padded = map(bufs_illuminated) do buf
-            buf = ifft(otf(sampled_otf, (1030, 1030)) .* fft(buf))[4:end-3, 4:end-3]
+            buf = ifft(sampled_otf .* fft(buf))[4:end-3, 4:end-3]
             return real(buf)
         end
     else

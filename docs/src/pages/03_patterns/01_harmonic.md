@@ -1,16 +1,6 @@
 # Harmonic (Sinusoidal) Illumination Pattern
 
-```@docs
-Harmonic
-```
+The `Harmonic` illumination pattern and its interface are documented in the manual.
 
-```@docs
-Harmonic2D
-```
 <!-- TODO: Add plots explaining the parameters <12-10-23> -->
-
-
-```@docs
-Harmonic3D
-```
 

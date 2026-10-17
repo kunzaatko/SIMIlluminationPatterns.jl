@@ -4,6 +4,4 @@ CurrentModule = SIMIlluminationPatterns
 
 # Unified `IlluminationPattern` Interface
 
-```@docs
-IlluminationPattern
-```
+The unified `IlluminationPattern` interface is documented in the manual.

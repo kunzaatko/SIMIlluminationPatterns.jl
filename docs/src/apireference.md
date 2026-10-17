@@ -6,22 +6,8 @@ Order = [:type, :function]
 ```@meta
 CurrentModule = SIMIlluminationPatterns
 ```
+# Utils
+
 ```@docs
 separation_matrix
-```
-# Utils 
-
-## Band Separation
-
-```@docs
-TranslationAlgorithm
-InterpolateExtrapolate
-Fourier
-```
-
-## [`Unitful.jl`](@extref :std:doc:`index`) Units
-```@docs
-Frequency
-FrequencyUnits
-FrequencyFreeUnits
 ```

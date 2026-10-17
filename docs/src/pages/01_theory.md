@@ -39,7 +39,7 @@ such as saturated structured illumination microscopy, which can enable shifting 
 resolution.
 
 This package is concerned with ``i(\vec{r})`` in this model. By far the most frequent type of illumination pattern used
-in SIM is the [_harmonic_](03_patterns/01_harmonic.md) also called _sinusoidal_. Another type that is not yet implemented in this
+in SIM is the [_harmonic_](@ref Harmonic) also called _sinusoidal_. Another type that is not yet implemented in this
 package the random _speckle_ pattern used in, so called, _blind SIM_ [mudry2012](@cite).
 
 [^1]: A linear assumption is often necessary for any analysis, but it is approximately true for most optical systems
